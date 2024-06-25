@@ -29,9 +29,9 @@ Route::middleware('auth:sanctum')->group(function() {
     
     Route::post('/logout',[RegisterController::class,'logout']);
     Route::get('/users',[RegisterController::class,'index'])->name('index');
-    Route::get('/superadmin_show', [SuperAdminController::class, 'superAdminProfileShow']);
-    Route::get('/superadmin/edit_profile', [SuperAdminController::class, 'superAdminEditProfile']);
-    Route::put('/superadmin/update-profile/{id}', [SuperAdminController::class, 'profileUpdate']);
+    Route::get('/superadmin_show', [App\Http\Controllers\Api\SuperAdminController::class, 'superAdminProfileShow']);
+    Route::get('/superadmin/edit_profile', [App\Http\Controllers\Api\SuperAdminController::class, 'superAdminEditProfile']);
+    Route::put('/superadmin/update-profile/{id}', [App\Http\Controllers\Api\SuperAdminController::class, 'profileUpdate']);
     
     Route::post('/superadmin/add_plans', [PlanController::class, 'addPlans']);
     Route::get('/superadmin/all_Plans', [PlanController::class, 'allPlans']);
