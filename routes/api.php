@@ -3,8 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\RegisterController;
-use App\Http\Controllers\Api\SuperAdminController;
-use App\Http\Controllers\Api\PlanController;
+use App\Http\Controllers\API\SuperAdminController;
+use App\Http\Controllers\API\PlanController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -29,9 +29,9 @@ Route::middleware('auth:sanctum')->group(function() {
     
     Route::post('/logout',[RegisterController::class,'logout']);
     Route::get('/users',[RegisterController::class,'index'])->name('index');
-    Route::get('/superadmin_show', [App\Http\Controllers\Api\SuperAdminController::class, 'superAdminProfileShow']);
-    Route::get('/superadmin/edit_profile', [App\Http\Controllers\Api\SuperAdminController::class, 'superAdminEditProfile']);
-    Route::put('/superadmin/update-profile/{id}', [App\Http\Controllers\Api\SuperAdminController::class, 'profileUpdate']);
+    Route::get('/superadmin_show', [App\Http\Controllers\API\SuperAdminController::class, 'superAdminProfileShow']);
+    Route::get('/superadmin/edit_profile', [App\Http\Controllers\API\SuperAdminController::class, 'superAdminEditProfile']);
+    Route::put('/superadmin/update-profile/{id}', [App\Http\Controllers\API\SuperAdminController::class, 'profileUpdate']);
     
     Route::post('/superadmin/add_plans', [PlanController::class, 'addPlans']);
     Route::get('/superadmin/all_Plans', [PlanController::class, 'allPlans']);
