@@ -52,15 +52,29 @@ class RegisterController extends BaseController
             'phone_number' => $request->phone_number,
             'module_permission' => json_encode($request->module_permission),
         ]);
- 
-        return response()->json([
+
+        $token = csrf_token();
+
+         $user = ([
+            'csrf_token' =>$token,
             'access_token' => $user->createToken('client')->plainTextToken,
             'name' => $request->name,
             'email' => $request->email,
             'password' => $request->password,
             'role_id' => $request->role_id,
         ]);
-        // return $this->sendResponse($success, 'User register successfully.');
+
+        // $user['csrf_token'] = $token;
+
+        //     // Add the Sanctum token to the user data
+        // $user['sanctum_token'] = $user->createToken('MyApp')->plainTextToken;
+
+        $response = [
+            'data' => $user,
+            'status' => 200,
+        ];
+
+        return $this->sendResponse($response, 'User register successfully.');
     }
 
     /**
@@ -71,16 +85,38 @@ class RegisterController extends BaseController
 
     public function login(Request $request)
     {
-        if(Auth::attempt(['email' => $request->email, 'password' => $request->password]))
-        { 
-            $user = Auth::user(); 
-            $success['token'] =  $user->createToken('MyApp')->plainTextToken; 
-            $success['name'] =  $user->name;
-            $success['name'] =  $user->email;
-            return $this->sendResponse($success, 'User login successfully.');
-        } else { 
-            return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
-        } 
+        
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email|',
+            'password' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+            $user = Auth::user();
+            
+            // Generate CSRF token
+            $token = csrf_token();
+
+            // Add CSRF token to user data
+            $user['csrf_token'] = $token;
+
+            // Add the Sanctum token to the user data
+            $user['sanctum_token'] = $user->createToken('MyApp')->plainTextToken;
+
+            // Prepare response data
+            $response = [
+                'data' => $user,
+                'status' => 200,
+            ];
+
+            return response()->json($response, 200);
+        } else {
+            return response()->json(['error' => 'Unauthorised'], 401);
+        }
     }
 
     public function logout()

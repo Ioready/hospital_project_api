@@ -4,15 +4,24 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\User;
+use App\Models\Hospital;
+use App\Http\Controllers\API\BaseController as BaseController;
+use Illuminate\Support\Facades\Auth;
+use Validator;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Storage;
 
-class HospitalController extends Controller
+class HospitalController extends BaseController
 {
     //
 
     public function allHospitals(){
 
         $hospital = Hospital::all();
-        if(!empty($plans)){
+        if(!empty($hospital)){
         $response = [
             'hospital' => $hospital,
             'status'=>200,
@@ -31,14 +40,23 @@ class HospitalController extends Controller
         if(!empty($user)){
 
         $validator = Validator::make($request->all(), [
-            'hospital_name' => 'required|string|max:255',
-            'patient_limit' => 'required',
-            'doctor_limit' => 'required|string|max:255',
-            'monthly_price' => 'required|string|max:255',
-            'yearly_price' => 'required|string|max:255',
-            'permission_module' => 'required|string|max:255',
-            'description'=> 'required|string|max:255',
-            'avatar' => 'required|max:255',
+            'title' => 'required|string|max:255',
+            'email' => 'required',
+            'password' => 'required|string|max:255',
+            'frontend_website_link' => 'required|string|max:255',
+            'address' => 'required|string|max:255',
+            'phone' => 'required|string|max:255',
+            'language'=> 'required|string|max:255',
+            'package_duration' => 'required|max:255',
+            'Country'=>'required|string|max:255',
+            'package'=> 'required|string|max:255',
+            'patient_limit'=> 'required|max:255',
+            'doctor_limit'=> 'required|string|max:255',
+            'permitted_modules'=> 'required|max:255',
+            'price'=> 'required|max:255',
+            'deposit_type'=> 'required|string|max:255',
+            'do_you_want_trial_version'=> 'required|string|max:255',
+            'logo'=> 'required|max:255',
             'status' => 'required|string|max:255',
         
             // Add other fields as necessary
@@ -48,15 +66,24 @@ class HospitalController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
-        $plans = Hospital::create([
-            'hospital_name' => $request->plan_name,
-            'patient_limit' => $request->input('patient_limit'),
-            'doctor_limit' => $request->input('doctor_limit'),
-            'monthly_price' => $request->input('monthly_price'),
-            'yearly_price' => $request->input('yearly_price'),
-            'permission_module' => $request->input('permission_module'),
-            'description'=> $request->input('description'),
-            'avatar'=> $request->input('avatar'),
+        $hospital = Hospital::create([
+            'title' => $request->title,
+            'email' => $request->input('email'),
+            'password' =>Hash::make($request->password),
+            'frontend_website_link' => $request->input('frontend_website_link'),
+            'address' => $request->input('address'),
+            'phone' => $request->input('phone'),
+            'language'=> $request->input('language'),
+            'package_duration'=> $request->input('package_duration'),
+            'Country'=>$request->input('Country'),
+            'package'=> $request->input('package'),
+            'patient_limit'=> $request->input('patient_limit'),
+            'doctor_limit'=> $request->input('doctor_limit'),
+            'permitted_modules'=> $request->input('permitted_modules'),
+            'price'=> $request->input('price'),
+            'deposit_type'=>$request->input('deposit_type'),
+            'do_you_want_trial_version'=> $request->input('do_you_want_trial_version'),
+            'logo'=> $request->input('logo'),
             'status' => $request->input('status'),
            
         ]);

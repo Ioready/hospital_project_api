@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\RegisterController;
 use App\Http\Controllers\API\SuperAdminController;
 use App\Http\Controllers\API\PlanController;
+use App\Http\Controllers\API\HospitalController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -18,14 +19,18 @@ use App\Http\Controllers\API\PlanController;
 /** ---------Register and Login ----------- */
 Route::controller(RegisterController::class)->group(function()
 {
-    Route::post('register', 'register');
-    Route::post('login', 'login');
+    
+    // Route::post('login', 'login');
     Route::post('users', 'login')->name('index');
 
+    
+
 });
+Route::post('register', [RegisterController::class,'register']);
+    Route::post('/login', [RegisterController::class, 'login']);
 
 /** -----------Users --------------------- */
-Route::middleware('auth:sanctum')->group(function() {
+Route::middleware('auth')->group(function() {
     
     Route::post('/logout',[RegisterController::class,'logout']);
     Route::get('/users',[RegisterController::class,'index'])->name('index');
@@ -36,19 +41,25 @@ Route::middleware('auth:sanctum')->group(function() {
     Route::post('/superadmin/add_plans', [PlanController::class, 'addPlans']);
     Route::get('/superadmin/all_Plans', [PlanController::class, 'allPlans']);
     Route::get('/superadmin/edit_Plans/{id}', [PlanController::class, 'editPlans']);
-
     Route::put('/superadmin/update_Plans/{id}', [PlanController::class, 'updatePlans']);
     Route::delete('/superadmin/delete_Plans/{id}', [PlanController::class, 'deletePlans']);
 
+
+    Route::post('/superadmin/add_hospitals', [HospitalController::class, 'addHospitals']);
+    Route::get('/superadmin/all_hospitals', [HospitalController::class, 'allHospitals']);
+    Route::get('/superadmin/edit_hospitals/{id}', [HospitalController::class, 'editHospitals']);
+    Route::put('/superadmin/update_hospitals/{id}', [HospitalController::class, 'updateHospitals']);
+    Route::delete('/superadmin/delete_hospitals/{id}', [HospitalController::class, 'deleteHospitals']);
+
     
 
     
     
 });
 
-Route::middleware('auth:sanctum')->controller(RegisterController::class)->group(function() {
-    Route::get('/users','index')->name('index');
-});
+// Route::middleware('auth:sanctum')->controller(RegisterController::class)->group(function() {
+//     Route::get('/users','index')->name('index');
+// });
 
 
 // Route::middleware('auth:sanctum')->group(function () {
