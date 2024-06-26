@@ -74,6 +74,7 @@ class RegisterController extends BaseController
             'status' => 200,
         ];
 
+        
         return $this->sendResponse($response, 'User register successfully.');
     }
 
@@ -113,10 +114,16 @@ class RegisterController extends BaseController
                 'status' => 200,
             ];
 
-            return response()->json($response, 200);
-        } else {
-            return response()->json(['error' => 'Unauthorised'], 401);
-        }
+
+            return $this->sendResponse($user, 'User login successfully.');
+        } else { 
+            return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
+        } 
+
+        //     return response()->json($response, 200);
+        // } else {
+        //     return response()->json(['error' => 'Unauthorised'], 401);
+        // }
     }
 
     public function logout()
