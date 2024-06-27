@@ -34,4 +34,11 @@ Route::middleware('auth:api')->group(function () {
     Route::put('/superadmin/update_hospitals/{id}', [HospitalController::class, 'updateHospitals']);
     Route::delete('/superadmin/delete_hospitals/{id}', [HospitalController::class, 'deleteHospitals']);
     Route::put('/superadmin/status_update_hospital/{id}', [HospitalController::class, 'statusUpdateHospitals']);
+
+    Route::get('/superadmin/active_hospitals', [HospitalController::class, 'activeHospital']);
+    Route::get('/superadmin/inactive_hospitals', [HospitalController::class, 'inactiveHospital']);
+    Route::get('/superadmin/license_expired_hospital', [HospitalController::class, 'licenseExpiredHospital']);
+
+    
+    
 });

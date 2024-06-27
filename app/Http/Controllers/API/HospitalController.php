@@ -152,6 +152,7 @@ class HospitalController extends BaseController
 
         
         $hospital = Hospital::find($id);
+        // $pass = Hash::make($request->password);
         $hospital->update($request->only(['title', 'email','password','frontend_website_link','address','phone','language','package_duration','Country','package','patient_limit','doctor_limit','permitted_modules','price','deposit_type','do_you_want_trial_version','logo','status']));
         $data[] = [
             'hospital'=>$hospital,
@@ -255,4 +256,84 @@ class HospitalController extends BaseController
             return $this->sendError('Invalid ID.', ['error' => 'Invalid ID']);
         }
     }
+
+    
+    public function activeHospital(){
+        $user = Auth::user();
+        if(!empty($user)){
+
+            
+            $active_hospitalCount = Hospital::all()->where('status','active')->count();
+            $active_hospital = Hospital::all()->where('status','active');
+           
+            $response = [
+                'active_hospital_count' => $active_hospitalCount,
+                'active_hospital' => $active_hospital,
+                
+                // 'status'=>200,
+            ];
+
+
+        return $this->sendResponse($response, 'User active  hospital successfully.');
+        } else { 
+            return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
+        }
+
+       
+
+    }
+
+    public function inactiveHospital(){
+        $user = Auth::user();
+        if(!empty($user)){
+
+            
+            
+            $inactive_hospitalCount = Hospital::all()->where('status','inactive')->count();
+            $inactive_hospital = Hospital::all()->where('status','inactive');
+            
+            $response = [
+                
+                'count_inactive_hospital' => $inactive_hospitalCount,
+                'inactive_hospital' => $inactive_hospital,
+               
+                // 'status'=>200,
+            ];
+
+
+        return $this->sendResponse($response, 'User inactive hospital successfully.');
+        } else { 
+            return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
+        }
+    }
+
+
+    public function licenseExpiredHospital() {
+        $user = Auth::user();
+        if(!empty($user)) {
+
+            $license_expired_hospitals = [];
+            $all_hospital = Hospital::all();
+
+            foreach($all_hospital as $duration){
+
+                // print_r($duration['package_duration']);die;
+            
+            // Calculate the date 90 days ago
+            $date = now()->subDays($duration['package_duration'])->toDateString();  // use toDateString() to get the date in 'Y-m-d' format
+    
+            // Query hospitals with the created_at or updated_at date equal to 90 days ago
+            $license_expired_hospitals['all_hospital'] = Hospital::whereDate('created_at', $date)->get();
+        }
+            $response = [
+                'license_expired_hospitals' => $license_expired_hospitals,
+                'date' => $date,
+            ];
+    
+            return $this->sendResponse($response, 'Hospitals with license expired 90 days ago retrieved successfully.');
+        } else { 
+            return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
+        }
+    }
+    
 }

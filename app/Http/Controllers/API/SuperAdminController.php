@@ -51,17 +51,36 @@ class SuperAdminController extends BaseController
             $inactive_hospital = Hospital::all()->where('status','inactive')->count();
             $plans = Plan::all()->count();
             $subscription = Plan::all();
+
+            $license_expired_hospitals = [];
+            $all_hospital = Hospital::all();
+
+            foreach($all_hospital as $duration){
+
+                // print_r($duration['package_duration']);die;
+            
+            // Calculate the date 90 days ago
+            $date = now()->subDays($duration['package_duration'])->toDateString();  // use toDateString() to get the date in 'Y-m-d' format
+    
+            // Query hospitals with the created_at or updated_at date equal to 90 days ago
+            $license_expired_hospitals= Hospital::whereDate('created_at', $date)->count();
+        }
+            // $response = [
+            //     'license_expired_hospitals' => $license_expired_hospitals,
+            //     'date' => $date,
+            // ];
+
             $response = [
                 'total_hospital' => $hospital,
                 'active_hospital' => $active_hospital,
                 'inactive_hospital' => $inactive_hospital,
-                'licence_expired' => $plans,
+                'licence_expired' => $license_expired_hospitals,
                 'subscription' => $subscription,
                 // 'status'=>200,
             ];
 
 
-        return $this->sendResponse($response, 'User Edit Profile successfully.');
+        return $this->sendResponse($response, 'User dashboard successfully.');
         } else { 
             return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
         }
