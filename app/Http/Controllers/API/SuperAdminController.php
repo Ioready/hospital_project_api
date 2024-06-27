@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Profile;
+use App\Models\Hospital;
+use App\Models\Plan;
 
 use App\Http\Controllers\API\BaseController as BaseController;
 use Illuminate\Support\Facades\Auth;
@@ -40,6 +42,33 @@ class SuperAdminController extends BaseController
         
     }
 
+    public function dashboard(){
+        $user = Auth::user();
+        if(!empty($user)){
+
+            $hospital = Hospital::all()->count();
+            $active_hospital = Hospital::all()->where('status','active')->count();
+            $inactive_hospital = Hospital::all()->where('status','inactive')->count();
+            $plans = Plan::all()->count();
+            $subscription = Plan::all();
+            $response = [
+                'total_hospital' => $hospital,
+                'active_hospital' => $active_hospital,
+                'inactive_hospital' => $inactive_hospital,
+                'licence_expired' => $plans,
+                'subscription' => $subscription,
+                // 'status'=>200,
+            ];
+
+
+        return $this->sendResponse($response, 'User Edit Profile successfully.');
+        } else { 
+            return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
+        }
+
+       
+
+    }
 
     public function superAdminProfileShow(){
         $user = Auth::user();

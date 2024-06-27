@@ -37,6 +37,8 @@ Route::middleware('auth')->group(function() {
     Route::get('/superadmin_show', [App\Http\Controllers\API\SuperAdminController::class, 'superAdminProfileShow']);
     Route::get('/superadmin/edit_profile', [App\Http\Controllers\API\SuperAdminController::class, 'superAdminEditProfile']);
     Route::put('/superadmin/update-profile/{id}', [App\Http\Controllers\API\SuperAdminController::class, 'profileUpdate']);
+    Route::get('/superadmin/dashboard', [App\Http\Controllers\API\SuperAdminController::class, 'dashboard']);
+    
     
     Route::post('/superadmin/add_plans', [PlanController::class, 'addPlans']);
     Route::get('/superadmin/all_Plans', [PlanController::class, 'allPlans']);
@@ -50,6 +52,9 @@ Route::middleware('auth')->group(function() {
     Route::get('/superadmin/edit_hospitals/{id}', [HospitalController::class, 'editHospitals']);
     Route::put('/superadmin/update_hospitals/{id}', [HospitalController::class, 'updateHospitals']);
     Route::delete('/superadmin/delete_hospitals/{id}', [HospitalController::class, 'deleteHospitals']);
+    Route::put('/superadmin/status_update_hospital/{id}', [HospitalController::class, 'statusUpdateHospitals']);
+
+    
 
     
 

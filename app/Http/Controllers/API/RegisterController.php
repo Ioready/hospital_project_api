@@ -25,7 +25,7 @@ class RegisterController extends BaseController
     /** get all users */
     public function index()
     {
-        $users = User::all();
+        $users = User::all()->cacheFor(now()->addMinutes(5))->get();
         return $this->sendResponse($users, 'Displaying all users data');
     }
 
@@ -55,7 +55,7 @@ class RegisterController extends BaseController
 
         $token = csrf_token();
 
-         $user = ([
+         $usersData = ([
             'csrf_token' =>$token,
             'access_token' => $user->createToken('client')->plainTextToken,
             'name' => $request->name,
@@ -70,7 +70,8 @@ class RegisterController extends BaseController
         // $user['sanctum_token'] = $user->createToken('MyApp')->plainTextToken;
 
         $response = [
-            'data' => $user,
+            'message'=>'User register successfully.',
+            'data' => $usersData,
             'status' => 200,
         ];
 
@@ -87,14 +88,12 @@ class RegisterController extends BaseController
     public function login(Request $request)
     {
         
-        $validator = Validator::make($request->all(), [
+         $request->validate([
             'email' => 'required|email|',
             'password' => 'required',
         ]);
 
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
-        }
+       
 
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             $user = Auth::user();
@@ -126,16 +125,21 @@ class RegisterController extends BaseController
         // }
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
         $user = Auth::user();
-
+    
         if ($user) {
-            $user->tokens()->delete(); // Invalidates all tokens for the user
-
+            // Revoke all tokens for the user
+            $user->tokens()->delete(); // This line will revoke all tokens the user has
+    
+            // Optionally, you can log out the user from the current session
+            Auth::logout();
+    
             return $this->sendResponse(null, 'User logged out successfully.');
         } else {
             return $this->sendError('User not authenticated.', ['error' => 'User not authenticated']);
         }
     }
+    
 }
