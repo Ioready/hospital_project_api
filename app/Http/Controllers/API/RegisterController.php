@@ -71,12 +71,12 @@ class RegisterController extends BaseController
 
         $response = [
             'message'=>'User register successfully.',
-            'data' => $usersData,
+            'data' => $user,
             'status' => 200,
         ];
 
         
-        return $this->sendResponse($response, 'User register successfully.');
+        return $this->sendResponse($user, 'User register successfully.');
     }
 
     /**
@@ -85,61 +85,95 @@ class RegisterController extends BaseController
     * @return \Illuminate\Http\Response
     */
 
+    // public function login(Request $request)
+    // {
+       
+    //     $validator = Validator::make($request->all(), [
+    //         'email' => 'required|string|max:255',
+    //         'password' => 'required',
+    //         // Add other fields as necessary
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return response()->json($validator->errors(), 422);
+    //     }
+
+
+    //     if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+    //         $user = Auth::user();
+            
+    //         // Generate CSRF token
+    //         $token = csrf_token();
+
+    //         // Add CSRF token to user data
+    //         $user['csrf_token'] = $token;
+
+    //         // Add the Sanctum token to the user data
+    //         $user['access_token'] = $user->createToken('MyApp')->plainTextToken;
+
+    //         // Prepare response data
+    //         $response = [
+    //             'data' => $user,
+    //             'status' => 200,
+    //         ];
+
+
+    //         return $this->sendResponse($user, 'User login successfully.');
+    //     } else { 
+    //         return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
+    //     } 
+
+    
+    // }
+
     public function login(Request $request)
     {
-        
-         $request->validate([
-            'email' => 'required|email|',
-            'password' => 'required',
+        $request->validate([
+            'email' => 'required|string|email',
+            'password' => 'required|string',
         ]);
-
-       
-
-        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-            $user = Auth::user();
-            
-            // Generate CSRF token
-            $token = csrf_token();
-
-            // Add CSRF token to user data
-            $user['csrf_token'] = $token;
-
-            // Add the Sanctum token to the user data
-            $user['sanctum_token'] = $user->createToken('MyApp')->plainTextToken;
-
-            // Prepare response data
-            $response = [
-                'data' => $user,
-                'status' => 200,
-            ];
-
-
-            return $this->sendResponse($user, 'User login successfully.');
-        } else { 
-            return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
-        } 
-
-        //     return response()->json($response, 200);
-        // } else {
-        //     return response()->json(['error' => 'Unauthorised'], 401);
-        // }
-    }
-
-    public function logout(Request $request)
-    {
-        $user = Auth::user();
-    
-        if ($user) {
-            // Revoke all tokens for the user
-            $user->tokens()->delete(); // This line will revoke all tokens the user has
-    
-            // Optionally, you can log out the user from the current session
-            Auth::logout();
-    
-            return $this->sendResponse(null, 'User logged out successfully.');
-        } else {
-            return $this->sendError('User not authenticated.', ['error' => 'User not authenticated']);
+        $credentials = $request->only('email', 'password');
+        $token = Auth::attempt($credentials);
+        
+        if (!$token) {
+            return response()->json([
+                'message' => 'Unauthorized',
+            ], 401);
         }
+
+        $user = Auth::user();
+        return response()->json([
+            'user' => $user,
+            'authorization' => [
+                'token' => $token,
+                'type' => 'bearer',
+            ]
+        ]);
     }
+
+
+    // public function logout(Request $request)
+    // {
+    //     $user = Auth::user();
     
+    //     if (!empty($user)) {
+    //         // Revoke all tokens for the user
+    //         $user->tokens()->delete(); // This line will revoke all tokens the user has
+    
+    //         // Optionally, you can log out the user from the current session
+    //         Auth::logout();
+    
+    //         return $this->sendResponse(null, 'User logged out successfully.');
+    //     } else {
+    //         return $this->sendError('User not authenticated.', ['error' => 'User not authenticated']);
+    //     }
+    // }
+    
+    public function logout()
+    {
+        Auth::logout();
+        return response()->json([
+            'message' => 'Successfully logged out',
+        ]);
+    }
 }
