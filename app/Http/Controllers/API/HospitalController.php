@@ -66,6 +66,14 @@ class HospitalController extends BaseController
             return response()->json($validator->errors(), 422);
         }
 
+        if ($request->logo) {
+            Storage::disk('public')->delete($request->logo);
+        }
+
+        $path = $request->file('logo')->store('images', 'public');
+        $request->logo = $path;
+        // $request->save();
+
         $hospital = Hospital::create([
             'title' => $request->title,
             'email' => $request->input('email'),
@@ -83,7 +91,7 @@ class HospitalController extends BaseController
             'price'=> $request->input('price'),
             'deposit_type'=>$request->input('deposit_type'),
             'do_you_want_trial_version'=> $request->input('do_you_want_trial_version'),
-            'logo'=> $request->input('logo'),
+            'logo'=> $request->logo,
             'status' => $request->input('status'),
            
         ]);
@@ -151,9 +159,21 @@ class HospitalController extends BaseController
         }
 
         
+
+        
         $hospital = Hospital::find($id);
+
+        if ($request->logo) {
+            Storage::disk('public')->delete($request->logo);
+        }
+
+        $path = $request->file('logo')->store('images', 'public');
+        $request->logo = $path;
+        // $hospital->save();
         // $pass = Hash::make($request->password);
         $hospital->update($request->only(['title', 'email','password','frontend_website_link','address','phone','language','package_duration','Country','package','patient_limit','doctor_limit','permitted_modules','price','deposit_type','do_you_want_trial_version','logo','status']));
+        $hospital->update(['logo' => $request->logo]);
+
         $data[] = [
             'hospital'=>$hospital,
             'avatar'=>Storage::url($hospital->avatar),

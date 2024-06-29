@@ -133,6 +133,83 @@ class PlanController extends BaseController
         }
     }
 
+
+    public function activePlans(){
+        $user = Auth::user();
+        if(!empty($user)){
+
+            $plan = Plan::where('status','active')->get();
+       
+        $response = [
+            'data' => $plan,
+            'status'=>200,
+        ];
+
+        return $this->sendResponse($response, 'Active plans List.');
+        } else { 
+            return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
+        }
+
+    }
+
+    public function inactivePlans(){
+        $user = Auth::user();
+        if(!empty($user)){
+
+            $plan = Plan::where('status','inactive')->get();
+       
+        $response = [
+            'data' => $plan,
+            'status'=>200,
+        ];
+
+        return $this->sendResponse($response, 'Inactive plans List.');
+        } else { 
+            return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
+        }
+
+    }
+
+    public function statusUpdatePlans($id, Request $request){
+
+
+        $user = Auth::user();
+    if ($user) {
+
+        // Validate the request
+        $validator = Validator::make($request->all(), [
+            'status' => 'required|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        try {
+            // Find the hospital by ID
+            $plan = Plan::find($id);
+            if (!$plan) {
+                return response()->json(['error' => 'plan not found'], 404);
+            }
+
+            // Update the hospital status
+            $plan->update(['status' => $request->status]);
+
+           
+
+            return $this->sendResponse($plan, 'plan status updated successfully.');
+        } catch (\Exception $e) {
+            // Handle any unexpected errors
+            return response()->json(['error' => 'Something went wrong', 'details' => $e->getMessage()], 500);
+        }
+
+    } else {
+        return $this->sendError('Unauthorized.', ['error' => 'Unauthorized']);
+    }
+        
+       
+    }
+
     public function deletePlans($id)
     {
         if (!empty($id)) {

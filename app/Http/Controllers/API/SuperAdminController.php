@@ -99,8 +99,12 @@ class SuperAdminController extends BaseController
 
         // Combine user and profile data into a response
         $response = [
-            'user' => $user,
-            'profile' => $profile
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'images' => $user->images,
+
+            // 'profile' => $profile
         ];
 
         return $this->sendResponse($response, 'User Edit Profile successfully.');
@@ -115,13 +119,13 @@ class SuperAdminController extends BaseController
         if(!empty($user)){
         $user_id = $user->id;
 
-        // Fetch the profile associated with the authenticated user
-        $profile = Profile::where('user_id', $user_id)->first();
-
-        // Combine user and profile data into a response
         $response = [
-            'user' => $user,
-            'profile' => $profile
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'images' => $user->images,
+
+            // 'profile' => $profile
         ];
 
         return $this->sendResponse($response, 'User Edit Profile successfully.');
@@ -140,13 +144,10 @@ class SuperAdminController extends BaseController
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            // 'email' => 'required|string|email|max:255|unique:users,email,' . $users->id,
-            'country_id' => 'required|string|max:255',
-            'state' => 'required|string|max:255',
-            'city' => 'required|string|max:255',
-            'postal_code' => 'required|string|max:255',
-            // 'avatar' => 'required|string|max:255',
-            'status' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,',
+            'password' => 'required|string|max:255',
+            'images' => 'required|image|mimes:jpeg,png,jpg,gif',
+            // 'status' => 'required|string|max:255',
         
             // Add other fields as necessary
         ]);
@@ -155,40 +156,36 @@ class SuperAdminController extends BaseController
             return response()->json($validator->errors(), 422);
         }
 
-        
-
         $users = user::find($id);
-        $users->name = $request->name;
-        // $users->thumbnail = $request->avatar->store('avatars','public');
+    
+        // $user = Auth::user();
+
+        // Delete the old profile image if it exists
+        if ($users->images) {
+            Storage::disk('public')->delete($user->images);
+        }
+
+        // Store the new profile image
+        $path = $request->file('images')->store('images', 'public');
+
+        // Update the user's profile image path in the database
+        // $user->images = $path;
+        $users->images = $path;
         $users->save();
 
-        // $users->update($request->only(['name']));
+
+        $users->update(['name' => $request->name, 'email'=>$request->email, 'password'=>Hash::make($request->password),'images'=>$path]);
+
+        // Prepare the response data
         
-        $profile = Profile::where('user_id', $id)->first();
 
-        if (!$profile) {
-            $profile = Profile::create([
-                'user_id' => $users->id,
-                'mobile_number' => $request->input('mobile_number'),
-                'country_id' => $request->input('country_id'),
-                'state' => $request->input('state'),
-                'city' => $request->input('city'),
-                'postal_code' => $request->input('postal_code'),
-                'status' => $request->input('status'),
-               
-            ]);
-            // return response()->json(['error' => 'Profile not found'], 404);
-        }else{
-
-       
-
-        $profile->update($request->only(['mobile_number', 'country_id','state','city','postal_code','status']));
+        // $profile->update($request->only(['mobile_number', 'country_id','state','city','postal_code','status']));
         // Add other fields as necessary
-    }
+    // }
         $data[] = [
             'user'=>$users,
-            'profile'=>$profile,
-            'avatar'=>Storage::url($profile->avatar),
+            // 'profile'=>$profile,
+            // 'avatar'=>Storage::url($profile->avatar),
             'status'=>200,
           ];
       
