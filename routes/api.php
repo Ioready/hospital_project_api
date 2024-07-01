@@ -27,6 +27,8 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/superadmin_show', [SuperAdminController::class, 'superAdminProfileShow']);
     Route::get('/superadmin/edit_profile', [SuperAdminController::class, 'superAdminEditProfile']);
     Route::post('/superadmin/update-profile/{id}', [SuperAdminController::class, 'profileUpdate']);
+    Route::post('change-password', [RegisterController::class, 'updatePassword'])->name('update.password');
+
     Route::get('/superadmin/dashboard', [SuperAdminController::class, 'dashboard']);
 
     Route::post('/superadmin/add_plans', [PlanController::class, 'addPlans']);

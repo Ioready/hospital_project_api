@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\Rule;
 use App\Models\Role;
+use App\Models\Utility;
 
 class RegisterController extends BaseController
 
@@ -40,7 +41,7 @@ class RegisterController extends BaseController
             'role_id' => ['required', Rule::in(Role::ROLE_SUPERADMIN,Role::ADMIN, Role::HOSPITAL, Role::DOCTOR, Role::NURSES, Role::ACCOUNTANT, Role::STAFF, Role::EMPLOYEE, Role::PATIENT)],
             'address' => 'nullable|string|max:255',
             'phone_number' => 'nullable|string|max:15',
-            'module_permission' => 'nullable|string',
+            // 'module_permission' => 'nullable|string',
         ]);
  
         $user = User::create([
@@ -50,7 +51,7 @@ class RegisterController extends BaseController
             'role_id' => $request->role_id,
             'address' => $request->address,
             'phone_number' => $request->phone_number,
-            'module_permission' => json_encode($request->module_permission),
+            // 'module_permission' => json_encode($request->module_permission),
         ]);
 
         $token = csrf_token();
@@ -64,11 +65,6 @@ class RegisterController extends BaseController
             'role_id' => $request->role_id,
         ]);
 
-        // $user['csrf_token'] = $token;
-
-        //     // Add the Sanctum token to the user data
-        // $user['sanctum_token'] = $user->createToken('MyApp')->plainTextToken;
-
         $response = [
             'message'=>'User register successfully.',
             'data' => $user,
@@ -79,52 +75,44 @@ class RegisterController extends BaseController
         return $this->sendResponse($user, 'User register successfully.');
     }
 
-    /**
-    * Login api
-    *
-    * @return \Illuminate\Http\Response
-    */
 
-    // public function login(Request $request)
-    // {
-       
-    //     $validator = Validator::make($request->all(), [
-    //         'email' => 'required|string|max:255',
-    //         'password' => 'required',
-    //         // Add other fields as necessary
-    //     ]);
+    public function updatePassword(Request $request)
+    {
 
-    //     if ($validator->fails()) {
-    //         return response()->json($validator->errors(), 422);
-    //     }
+        if (Auth::Check()) {
 
+            $validator = \Validator::make(
+                $request->all(), [
+                    'old_password' => 'required',
+                    'password' => 'required|min:6',
+                    'password_confirmation' => 'required|same:password',
+                ]
+            );
+            if ($validator->fails()) {
+                $messages = $validator->getMessageBag();
+                
+                return redirect()->back()->with('error', $messages->first());
+            }
 
-    //     if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-    //         $user = Auth::user();
+            $objUser = Auth::user();
+            $request_data = $request->All();
+            $current_password = $objUser->password;
+            if (Hash::check($request_data['old_password'], $current_password)) {
+                $user_id = Auth::User()->id;
+                $obj_user = User::find($user_id);
+                $obj_user->password = Hash::make($request_data['password']);
+                $obj_user->save();
+
+                return $this->sendResponse('profile', $objUser->id, 'Password successfully updated.');
+            } else {
+
+                return $this->sendResponse('profile', $objUser->id, 'Please enter correct current password.');
+            }
+        } else {
+            return $this->sendResponse('profile', \Auth::user()->id, 'Something is wrong.');
             
-    //         // Generate CSRF token
-    //         $token = csrf_token();
-
-    //         // Add CSRF token to user data
-    //         $user['csrf_token'] = $token;
-
-    //         // Add the Sanctum token to the user data
-    //         $user['access_token'] = $user->createToken('MyApp')->plainTextToken;
-
-    //         // Prepare response data
-    //         $response = [
-    //             'data' => $user,
-    //             'status' => 200,
-    //         ];
-
-
-    //         return $this->sendResponse($user, 'User login successfully.');
-    //     } else { 
-    //         return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
-    //     } 
-
-    
-    // }
+        }
+    }
 
     public function login(Request $request)
     {
@@ -152,22 +140,7 @@ class RegisterController extends BaseController
     }
 
 
-    // public function logout(Request $request)
-    // {
-    //     $user = Auth::user();
     
-    //     if (!empty($user)) {
-    //         // Revoke all tokens for the user
-    //         $user->tokens()->delete(); // This line will revoke all tokens the user has
-    
-    //         // Optionally, you can log out the user from the current session
-    //         Auth::logout();
-    
-    //         return $this->sendResponse(null, 'User logged out successfully.');
-    //     } else {
-    //         return $this->sendError('User not authenticated.', ['error' => 'User not authenticated']);
-    //     }
-    // }
     
     public function logout()
     {

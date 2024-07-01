@@ -103,11 +103,9 @@ class SuperAdminController extends BaseController
             'name' => $user->name,
             'email' => $user->email,
             'images' => $user->images,
-
-            // 'profile' => $profile
         ];
 
-        return $this->sendResponse($response, 'User Edit Profile successfully.');
+        return $this->sendResponse($response, 'User show Profile successfully.');
         } else { 
             return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
         } 
@@ -124,8 +122,6 @@ class SuperAdminController extends BaseController
             'name' => $user->name,
             'email' => $user->email,
             'images' => $user->images,
-
-            // 'profile' => $profile
         ];
 
         return $this->sendResponse($response, 'User Edit Profile successfully.');
@@ -144,12 +140,10 @@ class SuperAdminController extends BaseController
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,',
-            'password' => 'required|string|max:255',
+            // 'email' => 'required|string|email|max:255|unique:users,email,',
             'images' => 'required|image|mimes:jpeg,png,jpg,gif',
-            // 'status' => 'required|string|max:255',
-        
-            // Add other fields as necessary
+            'email' => 'required|string|email|max:255',
+
         ]);
 
         if ($validator->fails()) {
@@ -162,30 +156,19 @@ class SuperAdminController extends BaseController
 
         // Delete the old profile image if it exists
         if ($users->images) {
-            Storage::disk('public')->delete($user->images);
+            Storage::disk('public')->delete($users->images);
         }
 
-        // Store the new profile image
         $path = $request->file('images')->store('images', 'public');
-
-        // Update the user's profile image path in the database
-        // $user->images = $path;
         $users->images = $path;
         $users->save();
 
+        $users->update(['name' => $request->name, 'email'=>$request->email,'images'=>$path]);
+        // $users->update(['name' => $request->name, 'email'=>$request->email, 'password'=>Hash::make($request->password),'images'=>$path]);
 
-        $users->update(['name' => $request->name, 'email'=>$request->email, 'password'=>Hash::make($request->password),'images'=>$path]);
-
-        // Prepare the response data
-        
-
-        // $profile->update($request->only(['mobile_number', 'country_id','state','city','postal_code','status']));
-        // Add other fields as necessary
-    // }
+       
         $data[] = [
             'user'=>$users,
-            // 'profile'=>$profile,
-            // 'avatar'=>Storage::url($profile->avatar),
             'status'=>200,
           ];
       
