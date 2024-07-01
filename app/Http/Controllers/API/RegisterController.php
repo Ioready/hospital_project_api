@@ -91,7 +91,8 @@ class RegisterController extends BaseController
             if ($validator->fails()) {
                 $messages = $validator->getMessageBag();
                 
-                return redirect()->back()->with('error', $messages->first());
+                return response()->json($messages->first(), 422);
+                // return redirect()->back()->with('error', $messages->first());
             }
 
             $objUser = Auth::user();
