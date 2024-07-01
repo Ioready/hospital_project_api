@@ -505,14 +505,13 @@ class HospitalController extends BaseController
     //     }
     // }
     public function statusUpdateHospitals(Request $request, $id)
-{
-    // Authenticate the user
+    {
+    
     $user = Auth::user();
     if ($user) {
 
-        // Validate the request
         $validator = Validator::make($request->all(), [
-            'status' => 'required|max:255',
+            'is_active' => 'required|max:255',
         ]);
 
         if ($validator->fails()) {
@@ -520,15 +519,26 @@ class HospitalController extends BaseController
         }
 
         try {
-            // Find the hospital by ID
+
+            // $hospital = User::find($id);
+            // if (!$hospital) {
+            //     return response()->json(['error' => 'Hospital not found'], 404);
+            // }
+            // $hospital->update(['is_active' => $request->status]);
+            // $data = [
+            //     'hospital' => $hospital,
+            //     'status' => 200,
+            // ];
+
             $hospital = User::find($id);
+
             if (!$hospital) {
                 return response()->json(['error' => 'Hospital not found'], 404);
             }
 
-            // Update the hospital status
-            $hospital->update(['is_active' => $request->status]);
-
+            // Update the is_active status
+            // $hospital->update(['is_active' => $request->is_active]);
+            $hospital->update($request->only(['is_active']));
             // Prepare the response data
             $data = [
                 'hospital' => $hospital,
@@ -537,7 +547,7 @@ class HospitalController extends BaseController
 
             return $this->sendResponse($data, 'Hospital status updated successfully.');
         } catch (\Exception $e) {
-            // Handle any unexpected errors
+            
             return response()->json(['error' => 'Something went wrong', 'details' => $e->getMessage()], 500);
         }
 
