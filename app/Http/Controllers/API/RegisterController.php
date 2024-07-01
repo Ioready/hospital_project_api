@@ -104,13 +104,13 @@ class RegisterController extends BaseController
                 $obj_user->password = Hash::make($request_data['password']);
                 $obj_user->save();
 
-                return $this->sendResponse('profile', $objUser->id, 'Password successfully updated.');
+                return $this->sendResponse($objUser, 'Password successfully updated.');
             } else {
 
-                return $this->sendResponse('profile', $objUser->id, 'Please enter correct current password.');
+                return $this->sendResponse($objUser, 'Please enter correct current password.');
             }
         } else {
-            return $this->sendResponse('profile', \Auth::user()->id, 'Something is wrong.');
+            return $this->sendResponse( \Auth::user()->id, 'Something is wrong.');
             
         }
     }
