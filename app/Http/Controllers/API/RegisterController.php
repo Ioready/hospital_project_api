@@ -141,7 +141,7 @@ class RegisterController extends BaseController
         
         if (!$token) {
             return response()->json([
-                'message' => 'please enter currect email and password.',
+                'message' => 'Please enter currect email and password.',
             ], 401);
         }
 

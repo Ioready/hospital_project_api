@@ -520,28 +520,16 @@ class HospitalController extends BaseController
 
         try {
 
-            // $hospital = User::find($id);
-            // if (!$hospital) {
-            //     return response()->json(['error' => 'Hospital not found'], 404);
-            // }
-            // $hospital->update(['is_active' => $request->status]);
-            // $data = [
-            //     'hospital' => $hospital,
-            //     'status' => 200,
-            // ];
-
             $hospital = User::find($id);
 
             if (!$hospital) {
                 return response()->json(['error' => 'Hospital not found'], 404);
             }
 
-            // Update the is_active status
-            // $hospital->update(['is_active' => $request->is_active]);
-            $hospital->update($request->only(['is_active']));
-            // Prepare the response data
+            User::where('id', $id)->update(['is_active' => $request->is_active]);
+            $hospitals = User::find($id);
             $data = [
-                'hospital' => $hospital,
+                'hospital' => $hospitals,
                 'status' => 200,
             ];
 
@@ -606,8 +594,8 @@ class HospitalController extends BaseController
 
             
             
-            $inactive_hospitalCount = Hospital::all()->where('type','hospital')->where('is_active','1')->count();
-            $inactive_hospital = Hospital::all()->where('type','hospital')->where('is_active','1');
+            $inactive_hospitalCount = User::all()->where('type','hospital')->where('is_active',1)->count();
+            $inactive_hospital = User::all()->where('type','hospital')->where('is_active',1);
             
             $response = [
                 
@@ -630,17 +618,18 @@ class HospitalController extends BaseController
         if(!empty($user)) {
 
             $license_expired_hospitals = [];
-            $all_hospital = Hospital::all();
+            $all_hospital = User::where('type','hospital')->get();
 
             foreach($all_hospital as $duration){
 
-                // print_r($duration['package_duration']);die;
-            
+              
+            // $plans = Plan::find($duration->plan);
+            // $plans->
             // Calculate the date 90 days ago
             $date = now()->subDays($duration['package_duration'])->toDateString();  // use toDateString() to get the date in 'Y-m-d' format
     
             // Query hospitals with the created_at or updated_at date equal to 90 days ago
-            $license_expired_hospitals['all_hospital'] = Hospital::whereDate('created_at', $date)->get();
+            $license_expired_hospitals['all_hospital'] = User::whereDate('created_at', $date)->get();
         }
             $response = [
                 'license_expired_hospitals' => $license_expired_hospitals,
