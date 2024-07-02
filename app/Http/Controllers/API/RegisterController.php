@@ -117,16 +117,31 @@ class RegisterController extends BaseController
 
     public function login(Request $request)
     {
-        $request->validate([
-            'email' => 'required|string|email',
+        // $request->validate([
+        //     'email' => 'required|string|email',
+        //     'password' => 'required|string',
+        // ]);
+
+
+        $validator = \Validator::make(
+            $request->all(), [
+                'email' => 'required|string|email',
             'password' => 'required|string',
-        ]);
+            ]
+        );
+        if ($validator->fails()) {
+            $messages = $validator->getMessageBag();
+            
+            return response()->json($messages->first(), 422);
+            // return redirect()->back()->with('error', $messages->first());
+        }
+
         $credentials = $request->only('email', 'password');
         $token = Auth::attempt($credentials);
         
         if (!$token) {
             return response()->json([
-                'message' => 'Unauthorized',
+                'message' => 'please enter currect email and password.',
             ], 401);
         }
 
