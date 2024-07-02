@@ -35,35 +35,63 @@ class PlanController extends BaseController
         if(!empty($user)){
 
         $validator = Validator::make($request->all(), [
-            'plan_name' => 'required|string|max:255',
-            'patient_limit' => 'required',
-            'doctor_limit' => 'required|string|max:255',
-            'monthly_price' => 'required|string|max:255',
-            'yearly_price' => 'required|string|max:255',
-            'permission_module' => 'required|string|max:255',
-            'description'=> 'required|string|max:255',
-            'avatar' => 'required|max:255',
+            'card_label' => 'required|string|max:255',
+            'card_title' => 'required|string|max:255',
+            'title_description' => 'required|string|max:255',
+            'price' => 'required|string|max:255',
+            'type' => 'required|string|max:255',
+            'exclusive_and_including_tax' => 'required|string|max:255',
+            'text_area' => 'required|string|max:255',
+            'button_name' => 'required|string|max:255',
+            'button_link' => 'required|string|max:255',
+            'feature_title' => 'required|string|max:255',
+            'feature_list' => 'required|string|max:255',
+            'user_permission' => 'required|string|max:255',
+            'permission_by_module' => 'required|string|max:255',
+            'images' => 'required|max:255',
             'status' => 'required|string|max:255',
-        
-            // Add other fields as necessary
+           
         ]);
+
 
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
+        
+
+
+
         $plans = Plan::create([
-            'plan_name' => $request->plan_name,
-            'patient_limit' => $request->input('patient_limit'),
-            'doctor_limit' => $request->input('doctor_limit'),
-            'monthly_price' => $request->input('monthly_price'),
-            'yearly_price' => $request->input('yearly_price'),
-            'permission_module' => $request->input('permission_module'),
-            'description'=> $request->input('description'),
-            'avatar'=> $request->input('avatar'),
+            'card_label' => $request->card_label,
+            'card_title' => $request->input('card_title'),
+            'title_description' => $request->input('title_description'),
+            'price' => $request->input('price'),
+            'type' => $request->input('type'),
+            'exclusive_and_including_tax' => $request->input('exclusive_and_including_tax'),
+            'tax_name'=> $request->input('tax_name'),
+            'tax_percentage'=> $request->input('tax_percentage'),
+            'text_area' => $request->input('text_area'),
+            'button_name' => $request->input('button_name'),
+            'button_link' => $request->input('button_link'),
+            'feature_title' => $request->input('feature_title'),
+            'feature_title' => $request->input('feature_title'),
+            'feature_list' => $request->input('feature_list'),
+            'user_permission' => $request->input('user_permission'),
+            'permission_by_module' => $request->input('permission_by_module'),
+            'images' => $request->images,
             'status' => $request->input('status'),
+            
            
         ]);
+
+        if ($plans->images) {
+            Storage::disk('public')->delete($user->images);
+        }
+
+        $path = $request->file('images')->store('images', 'public');
+        $plans->images = $path;
+        $plans->save();
 
         $data[] = [
             'plans'=>$plans,
@@ -76,6 +104,22 @@ class PlanController extends BaseController
         } else { 
             return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
         }
+    }
+
+    public function showPlans($id){
+        if(!empty($id)){
+            $plan = Plan::find($id);
+       
+        $response = [
+            'data' => $plan,
+            'status'=>200,
+        ];
+
+        return $this->sendResponse($response, 'User show plans successfully.');
+        } else { 
+            return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
+        }
+
     }
 
     public function editPlans($id){
@@ -100,14 +144,20 @@ class PlanController extends BaseController
         if(!empty($user)){
 
         $validator = Validator::make($request->all(), [
-            'plan_name' => 'required|string|max:255',
-            'patient_limit' => 'required',
-            'doctor_limit' => 'required|string|max:255',
-            'monthly_price' => 'required|string|max:255',
-            'yearly_price' => 'required|string|max:255',
-            'permission_module' => 'required|string|max:255',
-            'description'=> 'required|string|max:255',
-            'avatar' => 'required|max:255',
+            'card_label' => 'required|string|max:255',
+            'card_title' => 'required|string|max:255',
+            'title_description' => 'required|string|max:255',
+            'price' => 'required|string|max:255',
+            'type' => 'required|string|max:255',
+            'exclusive_and_including_tax' => 'required|string|max:255',
+            'text_area' => 'required|string|max:255',
+            'button_name' => 'required|string|max:255',
+            'button_link' => 'required|string|max:255',
+            'feature_title' => 'required|string|max:255',
+            'feature_list' => 'required|string|max:255',
+            'user_permission' => 'required|string|max:255',
+            'permission_by_module' => 'required|string|max:255',
+            'images' => 'required|max:255',
             'status' => 'required|string|max:255',
         
             // Add other fields as necessary
@@ -117,9 +167,16 @@ class PlanController extends BaseController
             return response()->json($validator->errors(), 422);
         }
 
-        
         $plans = Plan::find($id);
-        $plans->update($request->only(['plan_name', 'patient_limit','doctor_limit','monthly_price','yearly_price','permission_module','description','status','status']));
+        if ($plans->images) {
+            Storage::disk('public')->delete($user->images);
+        }
+
+        $path = $request->file('images')->store('images', 'public');
+        $plans->images = $path;
+        $plans->save();
+
+        $plans->update($request->only(['card_label', 'card_title','title_description','price','type','exclusive_and_including_tax','text_area','button_name','button_link','feature_title','feature_list','user_permission','permission_by_module','status']));
         $data[] = [
             'plans'=>$plans,
             'avatar'=>Storage::url($plans->avatar),
@@ -138,7 +195,7 @@ class PlanController extends BaseController
         $user = Auth::user();
         if(!empty($user)){
 
-            $plan = Plan::where('status','active')->get();
+            $plan = Plan::where('status',0)->get();
        
         $response = [
             'data' => $plan,
@@ -156,7 +213,7 @@ class PlanController extends BaseController
         $user = Auth::user();
         if(!empty($user)){
 
-            $plan = Plan::where('status','inactive')->get();
+            $plan = Plan::where('status',1)->get();
        
         $response = [
             'data' => $plan,

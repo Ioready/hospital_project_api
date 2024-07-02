@@ -32,13 +32,15 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/superadmin/dashboard', [SuperAdminController::class, 'dashboard']);
 
     Route::post('/superadmin/add_plans', [PlanController::class, 'addPlans']);
-    Route::get('/superadmin/all_Plans', [PlanController::class, 'allPlans']);
-    Route::get('/superadmin/edit_Plans/{id}', [PlanController::class, 'editPlans']);
-    Route::put('/superadmin/update_Plans/{id}', [PlanController::class, 'updatePlans']);
+    Route::get('/superadmin/all_plans', [PlanController::class, 'allPlans']);
+    Route::get('/superadmin/edit_plans/{id}', [PlanController::class, 'editPlans']);
+    Route::get('/superadmin/show-plans/{id}', [PlanController::class, 'showPlans']);
+    
+    Route::post('/superadmin/update_plans/{id}', [PlanController::class, 'updatePlans']);
     Route::put('/superadmin/status_update_Plans/{id}', [PlanController::class, 'statusUpdatePlans']);
-    Route::delete('/superadmin/delete_Plans/{id}', [PlanController::class, 'deletePlans']);
-    Route::get('/superadmin/active_Plans', [PlanController::class, 'activePlans']);
-    Route::get('/superadmin/inactive_Plans', [PlanController::class, 'inactivePlans']);
+    Route::delete('/superadmin/delete_plans/{id}', [PlanController::class, 'deletePlans']);
+    Route::get('/superadmin/active_plans', [PlanController::class, 'activePlans']);
+    Route::get('/superadmin/inactive_plans', [PlanController::class, 'inactivePlans']);
     
 
 

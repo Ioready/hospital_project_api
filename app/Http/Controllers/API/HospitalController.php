@@ -18,6 +18,10 @@ use App\Models\Utility;
 use App\Models\Plan;
 
 
+use App\Models\Profile;
+
+
+
 class HospitalController extends BaseController
 {
     //
@@ -25,7 +29,7 @@ class HospitalController extends BaseController
     public function allHospitals(){
         if (\Auth::user()) {
         $hospitals = DB::table('users')
-        ->select('users.id', 'users.name', 'users.email', 'users.role_id', 'users.address', 'users.phone_number', 'users.images', 'users.is_active', 'users.type', 'users.is_enable_login', 'plans.plan_name')
+        ->select('users.id', 'users.name', 'users.email', 'users.role_id', 'users.address', 'users.phone_number', 'users.images', 'users.is_active', 'users.type', 'users.is_enable_login', 'plans.card_title')
         ->where('users.type', 'hospital')
         ->leftJoin('plans', 'users.plan', '=', 'plans.id')
         ->get();
@@ -100,7 +104,20 @@ class HospitalController extends BaseController
                 }
                 $user['is_enable_login'] = $enableLogin;
 
-                $user->save();
+                // $users = user::find($id);
+    
+        // $user = Auth::user();
+
+        // Delete the old profile image if it exists
+        if ($user->images) {
+            Storage::disk('public')->delete($user->images);
+        }
+
+        $path = $request->file('logo')->store('images', 'public');
+        $user->images = $path;
+        // $user->save();
+
+            $user->save();
 
               $lasrId =  DB::getPdo()->lastInsertId();
 
@@ -134,7 +151,7 @@ class HospitalController extends BaseController
                 $objHospital['is_active']= $objUser->is_active;
                 $objHospital['type']= $objUser->type;
                 $objHospital['is_enable_login']= $objUser->is_enable_login;
-                $objHospital['plan']= $plan->plan_name;
+                $objHospital['plan']= $plan->card_title;
                 $objHospital['plan_expire']= $plan->created_at;   
             }
             // Send Email
@@ -257,7 +274,7 @@ class HospitalController extends BaseController
         if(!empty($id)){
            
             $hospital = DB::table('users')
-        ->select('users.id', 'users.name', 'users.email', 'users.role_id', 'users.address', 'users.phone_number', 'users.images', 'users.is_active', 'users.type', 'users.is_enable_login', 'plans.plan_name')
+        ->select('users.id', 'users.name', 'users.email', 'users.role_id', 'users.address', 'users.phone_number', 'users.images', 'users.is_active', 'users.type', 'users.is_enable_login', 'plans.card_title')
         ->where('users.type', 'hospital')->where('users.id',$id)
         ->leftJoin('plans', 'users.plan', '=', 'plans.id')
         ->first();
@@ -395,6 +412,14 @@ class HospitalController extends BaseController
                 }
                 $user['is_enable_login'] = $enableLogin;
 
+                
+                if ($user->images) {
+                    Storage::disk('public')->delete($user->images);
+                }
+        
+                $path = $request->file('logo')->store('images', 'public');
+                $user->images = $path;
+
                 $user->save();
             }else{
                 return $this->sendResponse($user, 'hospital not found.');
@@ -431,7 +456,7 @@ class HospitalController extends BaseController
                 $objHospital['is_active']= $objUser->is_active;
                 $objHospital['type']= $objUser->type;
                 $objHospital['is_enable_login']= $objUser->is_enable_login;
-                $objHospital['plan']= $plan->plan_name;
+                $objHospital['plan']= $plan->card_title;
                 $objHospital['plan_expire']= $plan->created_at;   
             }
             // Send Email
@@ -583,9 +608,6 @@ class HospitalController extends BaseController
         } else { 
             return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
         }
-
-       
-
     }
 
     public function inactiveHospital(){

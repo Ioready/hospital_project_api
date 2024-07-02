@@ -9,7 +9,7 @@ use App\Models\User;
 class Plan extends Model
 {
    
-    protected $fillable = ['plan_name','patient_limit','doctor_limit','monthly_price','yearly_price','permission_module','description','avatar','status'];
+    protected $fillable = ['card_label','card_title','title_description','price','type','exclusive_and_including_tax','tax_name','tax_percentage','text_area','button_name','button_link','feature_title','feature_list','user_permission','permission_by_module','images','status'];
     
     public function users()
     {
