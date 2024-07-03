@@ -25,6 +25,7 @@ Route::post('/password/confirm-otp', [RegisterController::class, 'confirmOtp']);
 // Route::get('/password/reset', [RegisterController::class, 'reset'])->name('password.reset');
 // Route::post('/password/reset', [RegisterController::class, 'reset']);
 
+
 Route::get('/reset-password/{token}', [RegisterController::class, 'getTokenResetPassword'])
                 ->name('password.reset');
 
