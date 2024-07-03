@@ -9,10 +9,15 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Validator;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Password;
+// use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\Rule;
 use App\Models\Role;
 use App\Models\Utility;
+use Illuminate\Auth\Events\PasswordReset;
+use Mail;
+use App\Mail\TestMail;
+
 
 class RegisterController extends BaseController
 
@@ -117,12 +122,7 @@ class RegisterController extends BaseController
 
     public function login(Request $request)
     {
-        // $request->validate([
-        //     'email' => 'required|string|email',
-        //     'password' => 'required|string',
-        // ]);
-
-
+      
         $validator = \Validator::make(
             $request->all(), [
                 'email' => 'required|string|email',
@@ -155,8 +155,72 @@ class RegisterController extends BaseController
         ]);
     }
 
+    public function forgot(Request $request)
+    {
+        // $validator = Validator::make($request->all(), [
+        //     'email' => 'required|email|exists:users,email',
+        // ]);
 
+        // if ($validator->fails()) {
+        //     return response()->json(['errors' => $validator->errors()], 422);
+        // }
+
+        // $status = Password::sendResetLink($request->only('email'));
+        // return $status === Password::RESET_LINK_SENT
+        //     ? response()->json(['message' => 'Password reset link sent to your email.'])
+        //     : response()->json(['message' => 'Unable to send password reset link.'], 500);
+
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email|exists:users,email',
+        ]);
     
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+    
+        $status = Password::sendResetLink($request->only('email'));
+    
+        Mail::to('tech.sunilvishwakarma@gmail.com')->send(new TestMail([
+            'title' => 'The Title',
+            'body' => 'The Body',
+        ]));
+        return response()->json([
+            'message' => $status === Password::RESET_LINK_SENT 
+                ? 'Password reset link sent to your email.'
+                : 'Unable to send password reset link.',
+            'status' => $status // Include status in response
+        ]);
+
+    }
+
+    public function reset(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'token' => 'required|string',
+            'email' => 'required|email|exists:users,email',
+            'password' => ['required', 'confirmed', PasswordRule::defaults()],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $status = Password::reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function ($user, $password) {
+                $user->password = Hash::make($password);
+                $user->setRememberToken(Str::random(60));
+                $user->save();
+
+                event(new PasswordReset($user));
+            }
+        );
+
+        return $status === Password::PASSWORD_RESET
+            ? response()->json(['message' => 'Password has been reset successfully.'])
+            : response()->json(['message' => 'Failed to reset password.'], 500);
+    }
+
     
     public function logout()
     {

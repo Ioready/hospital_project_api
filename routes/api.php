@@ -20,6 +20,10 @@ use App\Http\Controllers\API\ReferralProgramController;
 Route::post('register', [RegisterController::class, 'register']);
 Route::post('login', [RegisterController::class, 'login']);
 
+Route::post('/password/forgot', [RegisterController::class, 'forgot']);
+// Route::get('/password/reset', [RegisterController::class, 'reset'])->name('password.reset');
+Route::post('/password/reset', [RegisterController::class, 'reset']);
+
 
 Route::middleware('auth:api')->group(function () {
     Route::post('logout', [RegisterController::class, 'logout']);

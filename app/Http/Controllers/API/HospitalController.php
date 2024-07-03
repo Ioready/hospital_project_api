@@ -63,7 +63,7 @@ class HospitalController extends BaseController
 
 
                 $enableLogin = 0;
-                if (!empty($request->password_switch) && $request->password_switch == 'on') {
+                if (!empty($request->password_switch) && $request->password_switch == true) {
                     $enableLogin = 1;
                     $validator = \Validator::make(
                         $request->all(), ['password' => 'required|min:6']
