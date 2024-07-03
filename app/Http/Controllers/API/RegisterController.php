@@ -17,6 +17,16 @@ use App\Models\Utility;
 use Illuminate\Auth\Events\PasswordReset;
 use Mail;
 use App\Mail\TestMail;
+use App\Mail\OTPMail;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\PasswordRule;
+// use Illuminate\Auth\Events\PasswordReset;
+// use Illuminate\Http\Request;
+// use Illuminate\Support\Facades\Hash;
+// use Illuminate\Support\Facades\Password;
+// use Illuminate\Support\Str;
+use Illuminate\Validation\Rules;
+
 
 
 class RegisterController extends BaseController
@@ -157,69 +167,167 @@ class RegisterController extends BaseController
 
     public function forgot(Request $request)
     {
+        
         // $validator = Validator::make($request->all(), [
         //     'email' => 'required|email|exists:users,email',
         // ]);
 
         // if ($validator->fails()) {
-        //     return response()->json(['errors' => $validator->errors()], 422);
+        //     return response()->json($validator->errors(), 422);
         // }
 
-        // $status = Password::sendResetLink($request->only('email'));
-        // return $status === Password::RESET_LINK_SENT
-        //     ? response()->json(['message' => 'Password reset link sent to your email.'])
-        //     : response()->json(['message' => 'Unable to send password reset link.'], 500);
+        // $user = User::where('email', $request->email)->first();
+        // Generate OTP
+        // $otp = Str::random(6);
+        // $otp = rand(100000, 999999);
+        // $user->otp = $otp;
+        // $user->otp_expires_at = now()->addMinutes(10); // OTP valid for 10 minutes
+        // $user->save();
 
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|email|exists:users,email',
-        ]);
-    
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-    
-        $status = Password::sendResetLink($request->only('email'));
-    
-        Mail::to('tech.sunilvishwakarma@gmail.com')->send(new TestMail([
-            'title' => 'The Title',
-            'body' => 'The Body',
-        ]));
-        return response()->json([
-            'message' => $status === Password::RESET_LINK_SENT 
-                ? 'Password reset link sent to your email.'
-                : 'Unable to send password reset link.',
-            'status' => $status // Include status in response
-        ]);
+        // Send OTP via email
+        // $mail  =  Mail::to($user->email)->send(new OTPMail($otp));
 
-    }
+        // return response()->json(['message' => 'OTP sent to your email address'], 200);
 
-    public function reset(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'token' => 'required|string',
-            'email' => 'required|email|exists:users,email',
-            'password' => ['required', 'confirmed', PasswordRule::defaults()],
-        ]);
+     
 
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
+        $request->validate(['email' => 'required|email|exists:users,email']);
 
-        $status = Password::reset(
-            $request->only('email', 'password', 'password_confirmation', 'token'),
-            function ($user, $password) {
-                $user->password = Hash::make($password);
-                $user->setRememberToken(Str::random(60));
-                $user->save();
-
-                event(new PasswordReset($user));
-            }
+        $status = Password::sendResetLink(
+            $request->only('email')
         );
+        // $code = rand(100000, 999999);
 
-        return $status === Password::PASSWORD_RESET
-            ? response()->json(['message' => 'Password has been reset successfully.'])
-            : response()->json(['message' => 'Failed to reset password.'], 500);
+        // Mail::to($request->email)->send(new SendEmailOtp($code));
+
+        return $status === Password::RESET_LINK_SENT
+            ? response()->json(['message' => 'Password reset link sent to your email.'])
+            : response()->json(['message' => 'Unable to send password reset link.'], 500);
+   
+
     }
+
+    public function confirmOtp(Request $request)
+    {
+        // Validate the request data
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email|exists:users,email',
+            'otp' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        // Find the user by email
+        $user = User::where('email', $request->email)->first();
+
+        // Check if OTP is valid and not expired
+        if ($user->otp !== $request->otp || now()->greaterThan($user->otp_expires_at)) {
+            return response()->json(['message' => 'Invalid or expired OTP'], 422);
+        }
+
+        // $credentials = $user->only('email', 'password');
+        $token = Auth::attempt($user['email'], $user['password']);
+        
+        // OTP is valid, proceed with the desired action (e.g., allow access, complete forgot password, etc.)
+        // Clear the OTP and expiration time
+        $user->otp = null;
+        $user->otp_expires_at = null;
+        $user->save();
+
+        
+        
+        // Return a success response
+        return response()->json(['authorization' => [
+                'token' => $token,
+                'type' => 'bearer',
+        ],'message' => 'OTP confirmed successfully'], 200);
+    }
+
+
+    // public function reset(Request $request)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'token' => 'required|string',
+    //         'email' => 'required|email|exists:users,email',
+    //         'password' => ['required', 'confirmed', PasswordRule::defaults()],
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return response()->json(['errors' => $validator->errors()], 422);
+    //     }
+
+    //     $status = Password::reset(
+    //         $request->only('email', 'password', 'password_confirmation', 'token'),
+    //         function ($user, $password) {
+    //             $user->password = Hash::make($password);
+    //             $user->setRememberToken(Str::random(60));
+    //             $user->save();
+
+    //             event(new PasswordReset($user));
+    //         }
+    //     );
+
+    //     return $status === Password::PASSWORD_RESET
+    //         ? response()->json(['message' => 'Password has been reset successfully.'])
+    //         : response()->json(['message' => 'Failed to reset password.'], 500);
+    // }
+
+    public function getTokenResetPassword()
+    {
+      
+       
+
+        $credentials = $get->only('email', 'password');
+        $token = Auth::attempt($credentials);
+        
+        if (!$token) {
+            return response()->json([
+                'message' => 'Please enter currect email and password.',
+            ], 401);
+        }
+
+        $user = Auth::user();
+        return response()->json([
+            'email' => $user,
+            'authorization' => [
+                'token' => $token,
+                'type' => 'bearer',
+            ]
+        ]);
+    }
+
+    public function reset(Request $request) {
+    $request->validate([
+        'token' => 'required',
+        'email' => 'required|email',
+        'password' => ['required', 'confirmed', Rules\Password::defaults()],
+    ]);
+
+    // Here we will attempt to reset the user's password. If it is successful we
+    // will update the password on an actual user model and persist it to the
+    // database. Otherwise we will parse the error and return the response.
+    $status = Password::reset(
+        $request->only('email', 'password', 'password_confirmation', 'token'),
+        function ($user) use ($request) {
+            $user->forceFill([
+                'password' => Hash::make($request->password),
+                'remember_token' => Str::random(60),
+            ])->save();
+
+            event(new PasswordReset($user));
+        }
+    );
+
+    // If the password was successfully reset, we will redirect the user back to
+    // the application's home authenticated view. If there is an error we can
+    // redirect them back to where they came from with their error message.
+    return $status == Password::PASSWORD_RESET
+                ? redirect()->route('login')->with('status', __($status))
+                : back()->withInput($request->only('email'))
+                        ->withErrors(['email' => __($status)]);
+}
 
     
     public function logout()
