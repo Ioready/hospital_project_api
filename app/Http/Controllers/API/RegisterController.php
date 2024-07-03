@@ -277,22 +277,19 @@ class RegisterController extends BaseController
     public function getTokenResetPassword()
     {
       
-       
-
-        $credentials = $get->only('email', 'password');
-        $token = Auth::attempt($credentials);
+        // $email = $request->email;
+        // $token = $request->token;
         
-        if (!$token) {
-            return response()->json([
-                'message' => 'Please enter currect email and password.',
-            ], 401);
-        }
+        // if (!$token) {
+        //     return response()->json([
+        //         'message' => 'Please enter currect email and password.',
+        //     ], 401);
+        // }
 
-        $user = Auth::user();
         return response()->json([
-            'email' => $user,
+            'email' => '$email',
             'authorization' => [
-                'token' => $token,
+                'token' => '$token',
                 'type' => 'bearer',
             ]
         ]);
@@ -308,6 +305,7 @@ class RegisterController extends BaseController
     // Here we will attempt to reset the user's password. If it is successful we
     // will update the password on an actual user model and persist it to the
     // database. Otherwise we will parse the error and return the response.
+
     $status = Password::reset(
         $request->only('email', 'password', 'password_confirmation', 'token'),
         function ($user) use ($request) {
