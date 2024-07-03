@@ -94,15 +94,11 @@ class SuperAdminController extends BaseController
         if(!empty($user)){
         $user_id = $user->id;
 
-        // Fetch the profile associated with the authenticated user
-        $profile = Profile::where('user_id', $user_id)->first();
-
-        // Combine user and profile data into a response
         $response = [
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
-            'images' => $user->images,
+            'images' => url('/public/storage/'.$user->images),
         ];
 
         return $this->sendResponse($response, 'User show Profile successfully.');
@@ -116,12 +112,12 @@ class SuperAdminController extends BaseController
         $user = Auth::user();
         if(!empty($user)){
         $user_id = $user->id;
-
+        
         $response = [
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
-            'images' => $user->images,
+            'images' => url('/public/storage/'.$user->images),
         ];
 
         return $this->sendResponse($response, 'User Edit Profile successfully.');
@@ -135,12 +131,10 @@ class SuperAdminController extends BaseController
 
     public function profileUpdate($id, Request $request){
 
-        //validator place
       if(!empty($id)){
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            // 'email' => 'required|string|email|max:255|unique:users,email,',
             'images' => 'required|image|mimes:jpeg,png,jpg,gif',
             'email' => 'required|string|email|max:255',
 
@@ -152,9 +146,6 @@ class SuperAdminController extends BaseController
 
         $users = user::find($id);
     
-        // $user = Auth::user();
-
-        // Delete the old profile image if it exists
         if ($users->images) {
             Storage::disk('public')->delete($users->images);
         }
@@ -166,9 +157,13 @@ class SuperAdminController extends BaseController
         $users->update(['name' => $request->name, 'email'=>$request->email,'images'=>$path]);
         // $users->update(['name' => $request->name, 'email'=>$request->email, 'password'=>Hash::make($request->password),'images'=>$path]);
 
-       
+        $updatedUsers = user::find($id);
+        $updatedUsers['name'] = $users->name;
+        $updatedUsers['email'] = $users->email;
+        $updatedUsers['phone_number'] = $users->phone_number;
+        $updatedUsers['images'] = url('/public/storage/'.$users->images);
         $data[] = [
-            'user'=>$users,
+            'user'=>$updatedUsers,
             'status'=>200,
           ];
       
