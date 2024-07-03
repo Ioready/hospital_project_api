@@ -98,7 +98,7 @@ class SuperAdminController extends BaseController
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
-            'images' => url('/public/storage/'.$user->images),
+            'images' => url('/storage/'.$user->images),
         ];
 
         return $this->sendResponse($response, 'User show Profile successfully.');
@@ -117,7 +117,7 @@ class SuperAdminController extends BaseController
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
-            'images' => url('/public/storage/'.$user->images),
+            'images' => url('/storage/'.$user->images),
         ];
 
         return $this->sendResponse($response, 'User Edit Profile successfully.');
@@ -161,7 +161,7 @@ class SuperAdminController extends BaseController
         $updatedUsers['name'] = $users->name;
         $updatedUsers['email'] = $users->email;
         $updatedUsers['phone_number'] = $users->phone_number;
-        $updatedUsers['images'] = url('/public/storage/'.$users->images);
+        $updatedUsers['images'] = url('/storage/'.$users->images);
         $data[] = [
             'user'=>$updatedUsers,
             'status'=>200,
