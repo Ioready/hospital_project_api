@@ -263,10 +263,7 @@ class RegisterController extends BaseController
     if ($validator->fails()) {
         return response()->json($validator->errors(), 422);
     }
-    // $credentials = $request->email;
-    // $token = Auth::attempt($credentials);
-    
-
+   
     // Find the user by email
     $user = User::where('email', $request->email)->first();
     if (!empty($user)) {
@@ -279,16 +276,6 @@ class RegisterController extends BaseController
         $user->otp = null;
         $user->otp_expires_at = null;
         $user->save();
-
-        // $token = $user->createToken()->accessToken;
-        // Generate a token
-        // $token = JWTAuth::fromUser($user);
-
-        // Return a success response with the token
-        // $token = Password::sendResetLink(
-        //         $request->only('email'));
-
-        // $token = $user->createToken('Personal Access Token')->accessToken;
 
         return response()->json([
             'authorization' => [

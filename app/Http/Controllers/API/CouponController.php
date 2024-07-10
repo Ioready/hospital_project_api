@@ -32,13 +32,14 @@ class CouponController extends BaseController
         $codes = Str::random(8);
 
         $request->validate([
-            // 'code' => 'required|unique:coupons',
+            'name' => 'required',
             'discount' => 'required|numeric',
             'expiry_date' => 'required|date',
             'limit' => 'required|numeric',
         ]);
 
         $coupon = Coupon::create([
+            'name' => $request->name,
             'code' => $codes,
             'discount' => $request->discount,
             'expiry_date' => $request->expiry_date,
@@ -51,6 +52,7 @@ class CouponController extends BaseController
     public function update(Request $request, $id)
     {
         $request->validate([
+            'name' => 'required',
             'code' => 'required|unique:coupons,code,' . $id,
             'discount' => 'required|numeric',
             'expiry_date' => 'required|date',
@@ -59,6 +61,7 @@ class CouponController extends BaseController
 
         $coupon = Coupon::findOrFail($id);
         $coupon->update([
+            'name' => $request->name,
             'code' => $request->code,
             'discount' => $request->discount,
             'expiry_date' => $request->expiry_date,

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('coupons', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
             $table->string('code')->unique();
             $table->decimal('discount', 8, 2);
             $table->date('expiry_date');

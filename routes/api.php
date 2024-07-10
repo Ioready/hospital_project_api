@@ -82,7 +82,7 @@ Route::middleware('auth:api')->group(function () {
 
 
     Route::post('/superadmin/add-coupons', [CouponController::class, 'create']);
-    Route::put('/superadmin/update-coupons/{id}', [CouponController::class, 'update']);
+    Route::post('/superadmin/update-coupons/{id}', [CouponController::class, 'update']);
     Route::get('/superadmin/coupons/list/', [CouponController::class, 'index']);
 
     Route::get('/superadmin/coupons/validate/{code}', [CouponController::class, 'validateCoupon']);
