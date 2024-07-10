@@ -2231,6 +2231,8 @@ class SystemController extends BaseController
     public function chatgptSetting(Request $request)
     {
 
+        $user = Auth::user();
+        if(!empty($user)){
         $post = $request->all();
         unset($post['_token']);
         $created_by = \Auth::user()->creatorId();
@@ -2245,7 +2247,11 @@ class SystemController extends BaseController
                 ]
             );
         }
-        return redirect()->back()->with('success', __('ChatGPT Setting successfully saved.'));
+        return $this->sendResponse($post, 'ChatGPT Setting successfully saved.');
+    } else { 
+        return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
+    }
+   
     }
 
     //ip settings

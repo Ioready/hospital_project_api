@@ -33,7 +33,7 @@ class StripePaymentController extends BaseController
             $orders = Order::select([
                                         'orders.*',
                                         'users.name as user_name',
-                                    ])->join('users', 'orders.user_id', '=', 'users.id')->orderBy('orders.created_at', 'DESC')->with('total_coupon_used.coupon_detail')->with(['total_coupon_used.coupon_detail'])->get();
+                                    ])->join('users', 'orders.user_id', '=', 'users.id')->orderBy('orders.created_at', 'DESC')->with('total_coupon_used.coupon_detail')->with(['total_coupon_used.coupon_detail'])->with(['plan'])->get();
 
             $userOrders = Order::select('*')
             ->whereIn('id', function ($query) {

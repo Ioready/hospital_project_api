@@ -55,7 +55,8 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/superadmin/active_plans', [PlanController::class, 'activePlans']);
     Route::get('/superadmin/inactive_plans', [PlanController::class, 'inactivePlans']);
     
-
+    Route::get('hospital-upgrade-plan/{id}', [HospitalController::class, 'upgradePlan'])->name('plan.upgrade');
+    Route::get('hospital-upgrade/{id}/plan/{pid}', [HospitalController::class, 'hospitalUpgradePlan'])->name('plan.active');
 
     Route::post('/superadmin/add_hospitals', [HospitalController::class, 'addHospitals']);
     Route::get('/superadmin/all_hospitals', [HospitalController::class, 'allHospitals']);
@@ -158,7 +159,7 @@ Route::middleware('auth:api')->group(function () {
             Route::get('request-amount/{id}/{status}', [ReferralProgramController::class, 'requestedAmount'])->name('amount.request');
 
     
-    
+            Route::post('chatgpt-settings', [SystemController::class, 'chatgptSetting'])->name('chatgpt.settings');
 
     
     

@@ -8,6 +8,7 @@ use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Models\Plan;
+use DB;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -90,6 +91,11 @@ class User extends Authenticatable implements JWTSubject
         }
     }
 
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+    
     public function authId()
     {
         return $this->id;
@@ -262,10 +268,11 @@ class User extends Authenticatable implements JWTSubject
             }
 
             $users = User::where('created_by', '=', $user_id)->where('type', '!=', 'super admin')->where('type', '!=', 'hospital')->where('type', '!=', 'client')->get();
-            $clients = User::where('created_by', '=', $user_id)->where('type', 'client')->get();
-            $customers = Customer::where('created_by', '=', $user_id)->get();
-            $venders = Vender::where('created_by', '=', $user_id)->get();
-
+            $clients = User::where('created_by', '=', $user_id)->where('type', 'hospital')->get();
+            // $customers = Customer::where('created_by', '=', $user_id)->get();
+            // $venders = Vender::where('created_by', '=', $user_id)->get();
+            $customers =array();
+            $venders =array();
             if ($plan->max_users == -1) {
                 foreach ($users as $user) {
                     $user->is_active = 1;

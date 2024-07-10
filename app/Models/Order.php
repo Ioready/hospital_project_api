@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
+use App\Models\Plan;
 
 class Order extends Model
 {
@@ -38,4 +40,20 @@ class Order extends Model
     {
         return $this->hasOne('App\Models\UserCoupon', 'order', 'order_id');
     }
+
+    
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function plan()
+    {
+        return $this->belongsTo(Plan::class);
+    }
+
+    // public function total_coupon_used()
+    // {
+    //     return $this->hasMany(TotalCouponUsed::class);
+    // }
 }

@@ -48,7 +48,7 @@ class PlanController extends BaseController
             'feature_list' => 'required|string|max:255',
             'user_permission' => 'required|string|max:255',
             'permission_by_module' => 'required|string|max:255',
-            'images' => 'required|max:255',
+            // 'images' => 'required|max:255',
             'status' => 'required|string|max:255',
            
         ]);
@@ -79,19 +79,19 @@ class PlanController extends BaseController
             'feature_list' => $request->input('feature_list'),
             'user_permission' => $request->input('user_permission'),
             'permission_by_module' => $request->input('permission_by_module'),
-            'images' => $request->images,
+            'images' => '',
             'status' => $request->input('status'),
             
            
         ]);
 
-        if ($plans->images) {
-            Storage::disk('public')->delete($user->images);
-        }
+        // if ($plans->images) {
+        //     Storage::disk('public')->delete($user->images);
+        // }
 
-        $path = $request->file('images')->store('images', 'public');
-        $plans->images = $path;
-        $plans->save();
+        // $path = $request->file('images')->store('images', 'public');
+        // $plans->images = $path;
+        // $plans->save();
 
         $data[] = [
             'plans'=>$plans,
@@ -157,7 +157,7 @@ class PlanController extends BaseController
             'feature_list' => 'required|string|max:255',
             'user_permission' => 'required|string|max:255',
             'permission_by_module' => 'required|string|max:255',
-            'images' => 'required|max:255',
+            // 'images' => 'required|max:255',
             'status' => 'required|string|max:255',
         
             // Add other fields as necessary
@@ -168,18 +168,18 @@ class PlanController extends BaseController
         }
 
         $plans = Plan::find($id);
-        if ($plans->images) {
-            Storage::disk('public')->delete($user->images);
-        }
+        // if ($plans->images) {
+        //     Storage::disk('public')->delete($user->images);
+        // }
 
-        $path = $request->file('images')->store('images', 'public');
-        $plans->images = $path;
-        $plans->save();
+        // $path = $request->file('images')->store('images', 'public');
+        // $plans->images = $path;
+        // $plans->save();
 
         $plans->update($request->only(['card_label', 'card_title','title_description','price','type','exclusive_and_including_tax','text_area','button_name','button_link','feature_title','feature_list','user_permission','permission_by_module','status']));
         $data[] = [
             'plans'=>$plans,
-            'avatar'=>Storage::url($plans->avatar),
+            // 'avatar'=>Storage::url($plans->avatar),
             'status'=>200,
           ];
       

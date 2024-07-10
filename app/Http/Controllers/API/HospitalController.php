@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use App\Models\Utility;
 use App\Models\Plan;
+use App\Models\Order;
+
 
 
 use App\Models\Profile;
@@ -33,7 +35,7 @@ class HospitalController extends BaseController
         ->where('users.type', 'hospital')
         ->leftJoin('plans', 'users.plan', '=', 'plans.id')
         ->get();
-
+            
         return $this->sendResponse($hospitals, 'All hospital successfully.');
         } else { 
             return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
@@ -662,6 +664,71 @@ class HospitalController extends BaseController
         } else { 
             return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
         }
+    }
+
+    public function upgradePlan($user_id)
+    {
+        $user = Auth::user();
+        if(!empty($user)) {
+
+        $user = User::find($user_id);
+        $plans = Plan::get();
+        $admin_payment_setting = Utility::getAdminPaymentSetting();
+
+        // return view('user.plan', compact('user', 'plans', 'admin_payment_setting'));
+        $data= array(
+
+            'user'=>$user,
+            'plans_list'=>$plans,
+        );
+
+        return $this->sendResponse($data, 'admin_payment_setting.');
+    } else { 
+        return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
+    }
+    }
+
+    public function hospitalUpgradePlan($user_id, $plan_id)
+    {
+
+        $plan = Plan::find($plan_id);
+        if($plan->status == 1)
+        {
+            return $this->sendError('error','You are unable to upgrade this plan because it is disabled.');
+            // return redirect()->back()->with('error', __('You are unable to upgrade this plan because it is disabled.'));
+        }
+
+        $user = User::find($user_id);
+        $assignPlan = $user->assignPlan($plan_id);
+        if ($assignPlan['is_success'] == true && !empty($plan)) {
+            $orderID = strtoupper(str_replace('.', '', uniqid('', true)));
+            Order::create(
+                [
+                    'order_id' => $orderID,
+                    'name' => null,
+                    'card_number' => null,
+                    'card_exp_month' => null,
+                    'card_exp_year' => null,
+                    'plan_name' => $plan->name,
+                    'plan_id' => $plan->id,
+                    'price' => $plan->price,
+                    'price_currency' => isset(\Auth::user()->planPrice()['currency'])?\Auth::user()->planPrice()['currency'] : '',
+                    'txn_id' => '',
+                    'payment_status' => 'success',
+                    'receipt' => null,
+                    'user_id' => $user->id,
+                ]
+            );
+
+        //     return redirect()->back()->with('success', 'Plan successfully upgraded.');
+        // } else {
+        //     return redirect()->back()->with('error', 'Plan fail to upgrade.');
+        // }
+        return $this->sendResponse($user, 'Plan successfully upgraded.');
+    } else { 
+        return $this->sendError('error','Plan fail to upgrade.');
+    }
+
     }
     
 }
