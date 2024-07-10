@@ -95,7 +95,7 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(Order::class);
     }
-    
+
     public function authId()
     {
         return $this->id;
@@ -261,6 +261,7 @@ class User extends Authenticatable implements JWTSubject
             }
             $this->save();
 
+            
             if ($hospital_id != 0) {
                 $user_id = $hospital_id;
             } else {

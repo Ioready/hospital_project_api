@@ -20,11 +20,9 @@ use App\Mail\TestMail;
 use App\Mail\OTPMail;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\PasswordRule;
-// use Illuminate\Auth\Events\PasswordReset;
-// use Illuminate\Http\Request;
-// use Illuminate\Support\Facades\Hash;
-// use Illuminate\Support\Facades\Password;
-// use Illuminate\Support\Str;
+
+use Tymon\JWTAuth\Facades\JWTAuth;
+
 use Illuminate\Validation\Rules;
 // use Illuminate\Support\Facades\PasswordRule;
 
@@ -215,55 +213,103 @@ class RegisterController extends BaseController
 
     }
 
+    // public function confirmOtp(Request $request)
+    // {
+    //     // Validate the request data
+    //     $validator = Validator::make($request->all(), [
+    //         'email' => 'required|email|exists:users,email',
+    //         'otp' => 'required|string',
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return response()->json($validator->errors(), 422);
+    //     }
+
+    //     // Find the user by email
+    //     $user = User::where('email', $request->email)->first();
+    //     if(!empty($user)){
+    //     // Check if OTP is valid and not expired
+    //     if ($user->otp !== $request->otp || now()->greaterThan($user->otp_expires_at)) {
+    //         return response()->json(['message' => 'Invalid or expired OTP'], 422);
+    //     }
+
+    //     // $credentials = $user->only('email', 'password');
+    //     // $token = Auth::attempt($user['email'], $user['password']);
+        
+    //     // OTP is valid, proceed with the desired action (e.g., allow access, complete forgot password, etc.)
+    //     // Clear the OTP and expiration time
+    //     $user->otp = null;
+    //     $user->otp_expires_at = null;
+    //     $user->save();
+
+        
+        
+    //     // Return a success response
+    //     return $this->sendResponse($request->email, 'OTP confirmed successfully.');
+    // } else {
+
+    //     return $this->sendResponse($request->email, 'Please enter correct current email.');
+    // }
+    // }
+
     public function confirmOtp(Request $request)
-    {
-        // Validate the request data
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|email|exists:users,email',
-            'otp' => 'required|string',
-        ]);
+{
+    // Validate the request data
+    $validator = Validator::make($request->all(), [
+        'email' => 'required|email|exists:users,email',
+        'otp' => 'required|string',
+    ]);
 
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
-        }
+    if ($validator->fails()) {
+        return response()->json($validator->errors(), 422);
+    }
+    // $credentials = $request->email;
+    // $token = Auth::attempt($credentials);
+    
 
-        // Find the user by email
-        $user = User::where('email', $request->email)->first();
-        if(!empty($user)){
+    // Find the user by email
+    $user = User::where('email', $request->email)->first();
+    if (!empty($user)) {
         // Check if OTP is valid and not expired
         if ($user->otp !== $request->otp || now()->greaterThan($user->otp_expires_at)) {
             return response()->json(['message' => 'Invalid or expired OTP'], 422);
         }
 
-        // $credentials = $user->only('email', 'password');
-        // $token = Auth::attempt($user['email'], $user['password']);
-        
-        // OTP is valid, proceed with the desired action (e.g., allow access, complete forgot password, etc.)
         // Clear the OTP and expiration time
         $user->otp = null;
         $user->otp_expires_at = null;
         $user->save();
 
-        
-        
-        // Return a success response
-        return $this->sendResponse($request->email, 'OTP confirmed successfully.');
-    } else {
+        // $token = $user->createToken()->accessToken;
+        // Generate a token
+        $token = JWTAuth::fromUser($user);
 
-        return $this->sendResponse($request->email, 'Please enter correct current email.');
+        // Return a success response with the token
+        // $token = Password::sendResetLink(
+        //         $request->only('email'));
+
+        // $token = $user->createToken('Personal Access Token')->accessToken;
+
+        return response()->json([
+            'authorization' => [
+                'email' => $request->email,
+                'token' => $token,
+                'type' => 'bearer',
+            ],
+            'message' => 'OTP confirmed successfully',
+        ], 200);
+    } else {
+        return response()->json(['message' => 'Please enter the correct current email.'], 422);
     }
-        // return response()->json(['authorization' => [
-        //         'token' => $token,
-        //         'type' => 'bearer',
-        // ],'message' => 'OTP confirmed successfully'], 200);
-    }
+}
+
 
 public function reset(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            // 'token' => 'required|string',
+            'token' => 'required|string',
             'email' => 'required|email|exists:users,email',
-            'password' => 'required', 'confirmed',
+            'password' => 'required', 'confirmed:password',
         ]);
 
         if ($validator->fails()) {
