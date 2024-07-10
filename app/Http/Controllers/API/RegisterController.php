@@ -280,7 +280,7 @@ class RegisterController extends BaseController
         $user->otp_expires_at = null;
         $user->save();
 
-        $token = $user->createToken()->accessToken;
+        // $token = $user->createToken()->accessToken;
         // Generate a token
         // $token = JWTAuth::fromUser($user);
 
@@ -293,7 +293,7 @@ class RegisterController extends BaseController
         return response()->json([
             'authorization' => [
                 'email' => $request->email,
-                'token' => $token,
+                // 'token' => $token,
                 'type' => 'bearer',
             ],
             'message' => 'OTP confirmed successfully',
