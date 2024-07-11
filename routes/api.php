@@ -27,13 +27,6 @@ Route::get('/password/reset', [RegisterController::class, 'reset'])->name('passw
 Route::post('/password/reset', [RegisterController::class, 'reset']);
 
 
-// Route::get('/reset-password/{token}', [RegisterController::class, 'getTokenResetPassword'])
-//                 ->name('password.reset');
-
-// Route::post('/reset-password', [RegisterController::class, 'reset'])
-//                 ->name('password.update');
-
-
 Route::middleware('auth:api')->group(function () {
     Route::post('logout', [RegisterController::class, 'logout']);
     Route::get('/users', [RegisterController::class, 'index'])->name('index');

@@ -19,12 +19,15 @@ use Mail;
 use App\Mail\TestMail;
 use App\Mail\OTPMail;
 use Illuminate\Support\Str;
+
+// use Illuminate\Support\Facades\PasswordRule;
+
 use Illuminate\Support\Facades\PasswordRule;
 
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 use Illuminate\Validation\Rules;
-// use Illuminate\Support\Facades\PasswordRule;
+use DB;
 
 
 class RegisterController extends BaseController
@@ -173,12 +176,9 @@ class RegisterController extends BaseController
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
-
         $user = User::where('email', $request->email)->first();
-        // Generate OTP
         if(!empty($user)){
 
-        
         $otp = Str::random(6);
         $otp = rand(100000, 999999);
         $user->otp = $otp;
@@ -188,16 +188,10 @@ class RegisterController extends BaseController
         // Send OTP via email
         $mail  =  Mail::to($user->email)->send(new OTPMail($otp));
 
-    //     return response()->json(['email'=>$request->email,'message' => 'OTP sent to your email address'], 200);
-    // }else{
-
-    // }
-
         return $this->sendResponse($request->email, 'OTP sent to your email address.');
-    } else {
-
+        } else {
         return $this->sendResponse($request->email, 'Please enter correct current email.');
-    }
+        }
      
 
         // $request->validate(['email' => 'required|email|exists:users,email']);
@@ -212,45 +206,6 @@ class RegisterController extends BaseController
    
 
     }
-
-    // public function confirmOtp(Request $request)
-    // {
-    //     // Validate the request data
-    //     $validator = Validator::make($request->all(), [
-    //         'email' => 'required|email|exists:users,email',
-    //         'otp' => 'required|string',
-    //     ]);
-
-    //     if ($validator->fails()) {
-    //         return response()->json($validator->errors(), 422);
-    //     }
-
-    //     // Find the user by email
-    //     $user = User::where('email', $request->email)->first();
-    //     if(!empty($user)){
-    //     // Check if OTP is valid and not expired
-    //     if ($user->otp !== $request->otp || now()->greaterThan($user->otp_expires_at)) {
-    //         return response()->json(['message' => 'Invalid or expired OTP'], 422);
-    //     }
-
-    //     // $credentials = $user->only('email', 'password');
-    //     // $token = Auth::attempt($user['email'], $user['password']);
-        
-    //     // OTP is valid, proceed with the desired action (e.g., allow access, complete forgot password, etc.)
-    //     // Clear the OTP and expiration time
-    //     $user->otp = null;
-    //     $user->otp_expires_at = null;
-    //     $user->save();
-
-        
-        
-    //     // Return a success response
-    //     return $this->sendResponse($request->email, 'OTP confirmed successfully.');
-    // } else {
-
-    //     return $this->sendResponse($request->email, 'Please enter correct current email.');
-    // }
-    // }
 
     public function confirmOtp(Request $request)
 {
@@ -272,94 +227,80 @@ class RegisterController extends BaseController
             return response()->json(['message' => 'Invalid or expired OTP'], 422);
         }
 
-        // Clear the OTP and expiration time
+       
         $user->otp = null;
         $user->otp_expires_at = null;
         $user->save();
 
+        $token = $user->createToken('Personal Access Token')->plainTextToken;
+
+        // $tokenResult = DB::table('password_reset_tokens')->where('email',$request->email)->orderBy('created_at','desc')->first();
+        // $tokenResult = $user->createToken('Personal Access Token');
+        // $token = $tokenResult->accessToken;
+
+      
         return response()->json([
             'authorization' => [
                 'email' => $request->email,
-                // 'token' => $token,
+                'token' => $token,
                 'type' => 'bearer',
-            ],
-            'message' => 'OTP confirmed successfully',
-        ], 200);
+                // 'expires_at' => $token->expires_at->toDateTimeString()
+            ]], 200);
     } else {
         return response()->json(['message' => 'Please enter the correct current email.'], 422);
     }
 }
 
-
 public function reset(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'token' => 'required|string',
-            'email' => 'required|email|exists:users,email',
-            'password' => 'required', 'confirmed:password',
-        ]);
+{
+    $validator = Validator::make($request->all(), [
+        // 'token' => 'required|string',
+        'email' => 'required|email|exists:users,email',
+        'password' => 'required|min:6',
+        'password_confirmation' => 'required|same:password',
+        
+    ]);
 
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-
-        $status = Password::reset(
-            $request->only('email', 'password', 'password_confirmation'),
-            function ($user, $password) {
-                $user->password = Hash::make($password);
-                $user->setRememberToken(Str::random(60));
-                $user->save();
-
-                event(new PasswordReset($user));
-            }
-        );
-
-        return $status === Password::PASSWORD_RESET
-            ? response()->json(['message' => 'Password has been reset successfully.'])
-            : response()->json(['message' => 'Failed to reset password.'], 500);
+    if ($validator->fails()) {
+        return response()->json(['errors' => $validator->errors()], 422);
     }
 
-    // public function reset(Request $request)
-    // {
-    //     $validator = Validator::make($request->all(), [
-    //         'token' => 'required|string',
-    //         'email' => 'required|email|exists:users,email',
-    //         'password' => ['required', 'confirmed', PasswordRule::defaults()],
-    //     ]);
+    // Attempt to reset the password
+    // $status = Password::reset(
+    //     $request->only('email', 'password', 'password_confirmation', 'token'),
+    //     function ($user, $password) {
+    //         $user->forceFill([
+    //             'password' => Hash::make($password),
+    //             'remember_token' => Str::random(60),
+    //         ])->save();
 
-    //     if ($validator->fails()) {
-    //         return response()->json(['errors' => $validator->errors()], 422);
+    //         event(new PasswordReset($user));
     //     }
+    // );
 
-    //     $status = Password::reset(
-    //         $request->only('email', 'password', 'password_confirmation', 'token'),
-    //         function ($user, $password) {
-    //             $user->password = Hash::make($password);
-    //             $user->setRememberToken(Str::random(60));
-    //             $user->save();
+    
+        
+    $user = User::where('email', $request->email)->first();
+    if(!empty($user)){
+    $user->password = Hash::make($request->password);
+    $user->save();
 
-    //             event(new PasswordReset($user));
-    //         }
-    //     );
+    return $this->sendResponse($request->email, 'Password has been reset successfully');
+    } else {
 
-    //     return $status === Password::PASSWORD_RESET
-    //         ? response()->json(['message' => 'Password has been reset successfully.'])
-    //         : response()->json(['message' => 'Failed to reset password.'], 500);
-    // }
+        return $this->sendResponse($request->email, 'Please enter correct current email.');
+    }
 
+
+    // return $status === Password::PASSWORD_RESET
+    //     ? response()->json(['message' => 'Password has been reset successfully.'])
+    //     : response()->json(['message' => 'Failed to reset password.'], 500);
+}
 
 
     public function getTokenResetPassword()
     {
       
-        // $email = $request->email;
-        // $token = $request->token;
-        
-        // if (!$token) {
-        //     return response()->json([
-        //         'message' => 'Please enter currect email and password.',
-        //     ], 401);
-        // }
 
         return response()->json([
             'email' => '$email',
