@@ -78,9 +78,6 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('/superadmin/delete_email/{id}', [EmailController::class, 'deleteEmail']);
 
     
-    
-
-
     Route::post('/superadmin/add-coupons', [CouponController::class, 'create']);
     Route::post('/superadmin/update-coupons/{id}', [CouponController::class, 'update']);
     Route::get('/superadmin/coupons/list/', [CouponController::class, 'index']);

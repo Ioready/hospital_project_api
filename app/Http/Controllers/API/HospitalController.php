@@ -35,7 +35,14 @@ class HospitalController extends BaseController
         ->where('users.type', 'hospital')
         ->leftJoin('plans', 'users.plan', '=', 'plans.id')
         ->get();
-            
+        
+        foreach ($hospitals as $hospital) {
+            if (!empty($hospital->images)) {
+                $hospital->hospital_images = url('/storage/' . $hospital->images);
+            } else {
+                $hospital->hospital_images = url('/storage/' . $hospital->images); // Or provide a default image path
+            }
+        }   
         return $this->sendResponse($hospitals, 'All hospital successfully.');
         } else { 
             return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
@@ -281,7 +288,15 @@ class HospitalController extends BaseController
         ->leftJoin('plans', 'users.plan', '=', 'plans.id')
         ->first();
 
-        return $this->sendResponse($hospital, 'User Edit hospital successfully.');
+       
+        if ($hospital) {
+            $hospital->hospital_images =  url('/storage/' . $hospital->images);
+            return $this->sendResponse($hospital, 'User Edit hospital successfully.');
+        } else {
+            return $this->sendError('Hospital not found.', ['error' => 'Hospital not found']);
+        }
+           
+        // return $this->sendResponse($hospitals, 'User Edit hospital successfully.');
         } else { 
             return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
         }

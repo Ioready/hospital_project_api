@@ -67,7 +67,7 @@ class SystemController extends BaseController
                     $logo = $path['url'];
                 } else {
                     return $this->sendError('Unauthorised.', ['error'=>$path['msg']]);
-                    // return redirect()->back()->with('error', __($path['msg']));
+                   
                 }
             }
 
@@ -85,7 +85,7 @@ class SystemController extends BaseController
                     $logo = $path['url'];
                 } else {
                     return $this->sendError('Unauthorised.', ['error'=>$path['msg']]);
-                    // return redirect()->back()->with('error', __($path['msg']));
+
                 }
             }
 
@@ -103,54 +103,16 @@ class SystemController extends BaseController
                     $favicon = $path['url'];
                 } else {
                     return $this->sendError('Unauthorised.', ['error'=>$path['msg']]);
-                    // return $this->sendResponse($settings, 'Brand Setting successfully updated..');
-                    // return redirect()->back()->with('error', __($path['msg']));
+                   
                 }
             }
 
             $settings = Utility::settings();
 
-            if (!empty($request->title_text) || !empty($request->color) || !empty($request->SITE_RTL)
-                || !empty($request->footer_text) || !empty($request->default_language) || isset($request->display_landing_page)
-                || isset($request->gdpr_cookie) || isset($request->enable_signup) || isset($request->email_verification)
-                || isset($request->color) || !empty($request->cust_theme_bg) || !empty($request->cust_darklayout)) {
+            if (!empty($request->title_text) || !empty($request->footer_text) || !empty($request->default_language)
+                ) {
                 $post = $request->all();
 
-                $SITE_RTL = $request->has('SITE_RTL') ? $request->SITE_RTL : 'off';
-                $post['SITE_RTL'] = $SITE_RTL;
-
-                if(isset($request->color) && $request->color_flag == 'false')
-                {
-                    $post['color'] = $request->color;
-                }
-                else
-                {
-                    $post['color'] = $request->custom_color;
-                }
-                
-                if (!isset($request->display_landing_page)) {
-                    $post['display_landing_page'] = 'off';
-                }
-                if (!isset($request->gdpr_cookie)) {
-                    $post['gdpr_cookie'] = 'off';
-                }
-                if (!isset($request->enable_signup)) {
-                    $post['enable_signup'] = 'off';
-                }
-                if (!isset($request->email_verification)) {
-                    $post['email_verification'] = 'off';
-                }
-
-
-                if (!isset($request->cust_theme_bg)) {
-                    $cust_theme_bg = (!empty($request->cust_theme_bg)) ? 'on' : 'off';
-                    $post['cust_theme_bg'] = $cust_theme_bg;
-                }
-                if (!isset($request->cust_darklayout)) {
-
-                    $cust_darklayout = (!empty($request->cust_darklayout)) ? 'on' : 'off';
-                    $post['cust_darklayout'] = $cust_darklayout;
-                }
 
                 unset($post['_token'], $post['hospital_logo_dark'], $post['hospital_logo_light'], $post['hospital_favicon'] , $post['custom_color']);
 
@@ -167,10 +129,6 @@ class SystemController extends BaseController
                 }
             }
 
-        //     return redirect()->back()->with('success', 'Brand Setting successfully updated.');
-        // } else {
-        //     return redirect()->back()->with('error', 'Permission denied.');
-        // }
 
         return $this->sendResponse($settings, 'Brand Setting successfully updated..');
         } else { 
@@ -216,11 +174,6 @@ class SystemController extends BaseController
         } else { 
             return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
         }
-
-        // return redirect()->back()->with('success', __('Setting successfully updated.'));
-        // } else {
-        //     return redirect()->back()->with('error', 'Permission denied.');
-        // }
 
     }
 
@@ -2334,6 +2287,7 @@ class SystemController extends BaseController
     {
         $user = \Auth::user();
 
+        if(!empty($user)){
         $post = $request->all();
 
         unset($post['_token']);
@@ -2354,7 +2308,12 @@ class SystemController extends BaseController
             }
         }
 
-        return redirect()->back()->with('success', __('Setting successfully updated.'));    
+        return $this->sendResponse($post, 'Setting successfully updated.');
+    } else { 
+        return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
+    }
+
+        
     }
 
 
