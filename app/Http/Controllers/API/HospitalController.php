@@ -40,7 +40,7 @@ class HospitalController extends BaseController
             if (!empty($hospital->images)) {
                 $hospital->hospital_images = url('/storage/' . $hospital->images);
             } else {
-                $hospital->hospital_images = url('/storage/' . $hospital->images); // Or provide a default image path
+                $hospital->hospital_images = url('/default_image/images.png'); // Or provide a default image path
             }
         }   
         return $this->sendResponse($hospitals, 'All hospital successfully.');
@@ -136,7 +136,7 @@ class HospitalController extends BaseController
             'password' =>Hash::make($request->password),
             'plan'=>Plan::first()->id,
             'address'=>$request->address,
-            
+            'status'=>'active',
             'created_by' => \Auth::user()->creatorId()
                     ]);
 
@@ -668,7 +668,11 @@ class HospitalController extends BaseController
             $date = now()->subDays($duration['package_duration'])->toDateString();  // use toDateString() to get the date in 'Y-m-d' format
     
             // Query hospitals with the created_at or updated_at date equal to 90 days ago
-            $license_expired_hospitals['all_hospital'] = User::whereDate('created_at', $date)->get();
+            $currentDate = date('Y-m-d');
+
+            $license_expired_hospitals = [
+                'all_hospital' => User::whereDate('plan_expire_date', '<=', $currentDate)->get()
+            ];
         }
             $response = [
                 'license_expired_hospitals' => $license_expired_hospitals,

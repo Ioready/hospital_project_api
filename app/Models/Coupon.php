@@ -16,4 +16,9 @@ class Coupon extends Model
         'expiry_date',
         'limit'
     ];
+
+    public function used_coupon()
+    {
+        return $this->hasMany('App\Models\UserCoupon', 'coupon', 'id')->count();
+    }
 }

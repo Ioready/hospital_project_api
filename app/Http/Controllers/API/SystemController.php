@@ -283,8 +283,8 @@ class SystemController extends BaseController
             }
 
             self::adminPaymentSettings($request);
-
-            return redirect()->back()->with('success', __('Payment setting successfully updated.'));
+            return $this->sendResponse($request->all(), 'Payment setting successfully updated.'); 
+            // return redirect()->back()->with('success', __('Payment setting successfully updated.'));
         } else {
             return redirect()->back()->with('error', 'Permission denied.');
         }
@@ -933,6 +933,18 @@ class SystemController extends BaseController
             );
 
         }
+        foreach ($post as $key => $data) {
+
+            $arr = [
+                $data,
+                $key,
+                \Auth::user()->id,
+            ];
+            \DB::insert(
+                'insert into admin_payment_settings (`value`, `name`,`created_by`) values (?, ?, ?) ON DUPLICATE KEY UPDATE `value` = VALUES(`value`) ', $arr
+            );
+
+        }
         return $this->sendResponse($request->all(), 'Payment setting successfully updated.');
 
         // return redirect()->back()->with('success', __('Payment setting successfully updated.'));
@@ -1045,7 +1057,7 @@ class SystemController extends BaseController
         }
     }
 
-    public function adminPaymentSettings($request)
+    public function adminPaymentSettings(Request $request)
     {
         $post['currency'] = $request->currency;
         $post['currency_symbol'] = $request->currency_symbol;
@@ -1444,7 +1456,7 @@ class SystemController extends BaseController
             );
 
         }
-
+        return $this->sendResponse($request->all(), 'Settings updated successfully.'); 
     }
 
     public function savePusherSettings(Request $request)

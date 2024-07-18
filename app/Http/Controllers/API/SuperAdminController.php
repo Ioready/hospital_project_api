@@ -44,11 +44,15 @@ class SuperAdminController extends BaseController
 
     public function dashboard(){
         $user = Auth::user();
+
         if(!empty($user)){
 
-            $hospital = Hospital::all()->count();
-            $active_hospital = Hospital::all()->where('status','active')->count();
-            $inactive_hospital = Hospital::all()->where('status','inactive')->count();
+            if($user->type == 'Super Admin'){
+
+            $hospital = User::all()->where('type','hospital')->count();
+            $active_hospital = User::all()->where('type','hospital')->where('is_active',0)->count();
+            $inactive_hospital = User::all()->where('type','hospital')->where('is_active',1)->count();
+
             $plans = Plan::all()->count();
             $subscription = Plan::all();
 
@@ -57,18 +61,11 @@ class SuperAdminController extends BaseController
 
             foreach($all_hospital as $duration){
 
-                // print_r($duration['package_duration']);die;
-            
-            // Calculate the date 90 days ago
             $date = now()->subDays($duration['package_duration'])->toDateString();  // use toDateString() to get the date in 'Y-m-d' format
-    
-            // Query hospitals with the created_at or updated_at date equal to 90 days ago
-            $license_expired_hospitals= Hospital::whereDate('created_at', $date)->count();
+            $currentDate = date('Y-m-d');
+            
+            $license_expired_hospitals = User::where('type','hospital')->whereDate('plan_expire_date', '<=', $currentDate)->count();
         }
-            // $response = [
-            //     'license_expired_hospitals' => $license_expired_hospitals,
-            //     'date' => $date,
-            // ];
 
             $response = [
                 'total_hospital' => $hospital,
@@ -76,8 +73,79 @@ class SuperAdminController extends BaseController
                 'inactive_hospital' => $inactive_hospital,
                 'licence_expired' => $license_expired_hospitals,
                 'subscription' => $subscription,
-                // 'status'=>200,
+                
             ];
+
+        }else if($user->type == 'hospital'){
+
+            $hospital = User::all()->where('type','hospital')->count();
+            $active_hospital = User::all()->where('type','hospital')->where('is_active',0)->count();
+            $inactive_hospital = User::all()->where('type','hospital')->where('is_active',1)->count();
+
+            $plans = Plan::all()->count();
+            $subscription = Plan::all();
+
+            $license_expired_hospitals = [];
+            $all_hospital = Hospital::all();
+
+            foreach($all_hospital as $duration){
+
+            $date = now()->subDays($duration['package_duration'])->toDateString();  // use toDateString() to get the date in 'Y-m-d' format
+            $currentDate = date('Y-m-d');
+            
+            $license_expired_hospitals = User::where('type','hospital')->whereDate('plan_expire_date', '<=', $currentDate)->count();
+        }
+
+            $response = [
+                'total_doctor' => $hospital,
+                'active_doctor' => $active_hospital,
+                'inactive_doctor' => $inactive_hospital,
+                'total_patient' => $license_expired_hospitals,
+                'today_patient' => $hospital,
+                'total_appointment' => $hospital,
+                'today_appointment' => $hospital,
+                'total_earning' => $hospital,
+                'today_earning' => $hospital,
+                'total_department' => $hospital,
+                'today_appointment_list' => $subscription,
+                
+            ];
+
+        }else if($user->type == 'doctor'){
+
+            $hospital = User::all()->where('type','hospital')->count();
+            $active_hospital = User::all()->where('type','hospital')->where('is_active',0)->count();
+            $inactive_hospital = User::all()->where('type','hospital')->where('is_active',1)->count();
+
+            $plans = Plan::all()->count();
+            $subscription = Plan::all();
+
+            $license_expired_hospitals = [];
+            $all_hospital = Hospital::all();
+
+            foreach($all_hospital as $duration){
+
+            $date = now()->subDays($duration['package_duration'])->toDateString();  // use toDateString() to get the date in 'Y-m-d' format
+            $currentDate = date('Y-m-d');
+            
+            $license_expired_hospitals = User::where('type','hospital')->whereDate('plan_expire_date', '<=', $currentDate)->count();
+        }
+
+            $response = [
+                'total_hospital' => $hospital,
+                'active_hospital' => $active_hospital,
+                'inactive_hospital' => $inactive_hospital,
+                'licence_expired' => $license_expired_hospitals,
+                'subscription' => $subscription,
+                
+            ];
+        }else if($user->type == 'patient'){
+
+        }else if($user->type == 'clinician'){
+
+        }else{
+
+        }
 
 
         return $this->sendResponse($response, 'User dashboard successfully.');

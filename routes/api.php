@@ -89,12 +89,13 @@ Route::middleware('auth:api')->group(function () {
 
     Route::get('order', [StripePaymentController::class, 'index']);
     Route::get('/stripe/{code}', [StripePaymentController::class, 'stripe']);
-    Route::post('/stripe', [StripePaymentController::class, 'stripePost']);
+    // Route::post('/purchase-plan-stripe', [StripePaymentController::class, 'stripePost']);
+    Route::post('buy-now-stripe', [StripePaymentController::class, 'buyNowStripe']);
+    Route::get('success', [StripePaymentController::class, 'success'])->name('success');
+    Route::get('cancel', [StripePaymentController::class, 'cancel'])->name('cancel');
 
 //    Route::post('plan-pay-with-paypal', [PaypalController::class, 'planPayWithPaypal'])->name('plan.pay.with.paypal')->middleware(['auth', 'XSS', 'revalidate']);
 //    Route::get('{id}/plan-get-payment-status', [PaypalController::class, 'planGetPaymentStatus'])->name('plan.get.payment.status')->middleware(['auth', 'XSS', 'revalidate']);
-
-
 
             // Route::resource('systems', SystemController::class);
             Route::get('systems', [SystemController::class, 'index']);
@@ -151,6 +152,7 @@ Route::middleware('auth:api')->group(function () {
     
             Route::post('chatgpt-settings', [SystemController::class, 'chatgptSetting'])->name('chatgpt.settings');
 
-    
+            
+
     
 });
