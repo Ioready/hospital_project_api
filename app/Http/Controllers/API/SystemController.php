@@ -54,6 +54,7 @@ class SystemController extends BaseController
     public function store(Request $request)
     {
 
+        
         if (\Auth::user()) {
             if ($request->logo_dark) {
                 $logoName = 'logo-dark.png';
@@ -113,13 +114,22 @@ class SystemController extends BaseController
                 ) {
                 $post = $request->all();
 
-
+                
                 unset($post['_token'], $post['hospital_logo_dark'], $post['hospital_logo_light'], $post['hospital_favicon'] , $post['custom_color']);
 
+                // print_r($request->all());die;
                 foreach ($post as $key => $data) {
                     if (in_array($key, array_keys($settings))) {
                         \DB::insert(
                             'insert into settings (`value`, `name`,`created_by`) values (?, ?, ?) ON DUPLICATE KEY UPDATE `value` = VALUES(`value`) ', [
+                                $data,
+                                $key,
+                                \Auth::user()->creatorId(),
+                            ]
+                        );
+
+                        \DB::insert(
+                            'insert into admin_payment_settings (`value`, `name`,`created_by`) values (?, ?, ?) ON DUPLICATE KEY UPDATE `value` = VALUES(`value`) ', [
                                 $data,
                                 $key,
                                 \Auth::user()->creatorId(),

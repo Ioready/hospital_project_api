@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             //
             $table->string('otp')->nullable()->after('is_active');
-            $table->timestamp('otp_expires_at')->nullable()()->after('otp');
+            $table->timestamp('otp_expires_at')->nullable()->after('otp');
             
         });
     }
