@@ -29,18 +29,20 @@ class CouponController extends BaseController
 
     public function create(Request $request)
     {
-        $codes = Str::random(8);
+        // $codes = Str::random(8);
 
         $request->validate([
             'name' => 'required',
             'discount' => 'required|numeric',
             'expiry_date' => 'required|date',
             'limit' => 'required|numeric',
+            'code'=>'required',
+
         ]);
 
         $coupon = Coupon::create([
             'name' => $request->name,
-            'code' => $codes,
+            'code' => $request->code,
             'discount' => $request->discount,
             'expiry_date' => $request->expiry_date,
             'limit'=>$request->limit,

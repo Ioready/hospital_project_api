@@ -464,28 +464,7 @@ class PaypalController extends Controller
 //                    else
 //                    {
 //                        return redirect()->back()->with('error', __('This coupon code is invalid or has expired.'));
-//                    }
-//                }
-//
-////                $this->paymentConfig();
-//                $name  = $plan->name;
-//                $payer = new Payer();
-//                $payer->setPaymentMethod('paypal');
-//                $item_1 = new Item();
-//                $item_1->setName($name)->setCurrency(env('CURRENCY'))->setQuantity(1)->setPrice($price);
-//                $item_list = new ItemList();
-//                $item_list->setItems([$item_1]);
-//                $amount = new Amount();
-//                $amount->setCurrency(env('CURRENCY'))->setTotal($price);
-//                $transaction = new Transaction();
-//                $transaction->setAmount($amount)->setItemList($item_list)->setDescription($name);
-//                $redirect_urls = new RedirectUrls();
-//                $redirect_urls->setReturnUrl(
-//                    route(
-//                        'plan.get.payment.status', [
-//                            $plan->id,
-//                            'coupon_id' => $coupon_id,
-//                        ]
+//                    } 
 //                    )
 //                )->setCancelUrl(
 //                    route(
