@@ -373,7 +373,7 @@ class HospitalController extends BaseController
                 $validator = \Validator::make(
                     $request->all(), [
                         'name' => 'required|max:120',
-                        'email' => 'required|email|unique:users',
+                        'email' => 'required|email',
                     ]
                 );
                 if ($validator->fails()) {
