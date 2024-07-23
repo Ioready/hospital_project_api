@@ -59,10 +59,10 @@ class SystemController extends BaseController
             if ($request->logo_dark) {
                 $logoName = 'logo-dark.png';
                 $dir = 'uploads/logo/';
-                // $validation = [
-                //     'mimes:' . 'png',
-                //     'max:' . '20480',
-                // ];
+                $validation = [
+                    'mimes:' . 'jpg,jpeg,png,bmp,tiff',
+                    'max:' . '20480',
+                ];
                 $path = Utility::upload_file($request, 'logo_dark', $logoName, $dir, []);
                 if ($path['flag'] == 1) {
                     $logo = $path['url'];
@@ -94,10 +94,10 @@ class SystemController extends BaseController
 
                 $favicon = 'favicon.png';
                 $dir = 'uploads/logo';
-                // $validation = [
-                //     'mimes:' . 'png',
-                //     'max:' . '20480',
-                // ];
+                $validation = [
+                    'mimes:' . 'jpg,jpeg,png,bmp,tiff',
+                    'max:' . '20480',
+                ];
 
                 $path = Utility::upload_file($request, 'favicon', $favicon, $dir, $validation);
                 if ($path['flag'] == 1) {
