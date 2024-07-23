@@ -14,6 +14,8 @@ use App\Http\Controllers\API\StripePaymentController;
 use App\Http\Controllers\API\BankTransferPaymentController;
 use App\Http\Controllers\API\SystemController;
 use App\Http\Controllers\API\ReferralProgramController;
+use App\Http\Controllers\API\DoctorController;
+
 
 
 
@@ -65,11 +67,11 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/superadmin/email_list', [EmailController::class, 'index']);
     Route::post('/superadmin/new_email', [EmailController::class, 'newEmail']);
     Route::post('/superadmin/send_email', [EmailController::class, 'sendEmail']);
-
     Route::get('/superadmin/edit_email/{id}', [EmailController::class, 'editEmail']);
     Route::get('/superadmin/show_email/{id}', [EmailController::class, 'showEmail']);
     Route::delete('/superadmin/delete_email/{id}', [EmailController::class, 'deleteEmail']);
-
+    Route::post('/superadmin/update-email/{id}', [EmailController::class, 'update']);
+    
     
     Route::post('/superadmin/add-coupons', [CouponController::class, 'create']);
     Route::post('/superadmin/update-coupons/{id}', [CouponController::class, 'update']);
@@ -152,6 +154,7 @@ Route::middleware('auth:api')->group(function () {
     
             Route::post('chatgpt-settings', [SystemController::class, 'chatgptSetting'])->name('chatgpt.settings');
 
+            Route::post('/add-doctor', [DoctorController::class, 'addDoctor']);
             
 
     

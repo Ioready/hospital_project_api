@@ -109,6 +109,24 @@ class EmailController extends BaseController
         }
     }
 
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'from' =>'required',
+            'subject' => 'required',
+            'message'=>'required',
+        ]);
+
+        $email = Email::findOrFail($id);
+        $email->update([
+            'from' => $request->from,
+            'subject' => $request->subject,
+            'message' =>$request->message,
+        ]);
+
+        return response()->json(['email' => $email, 'message' => 'email updated successfully'], 200);
+    }
+
     public function showEmail($id){
 
         $email = Email::find($id);

@@ -415,7 +415,7 @@ class StripePaymentController extends BaseController
 $card = $stripe->customers->all(['limit' => 3]);
 
                     // $customer = $stripe->customers->sessions->retrieve($session->email);
-                    print_r($card);die;
+                    // print_r($card);die;
                     // source
                     // print_r($response);die;
                 // $customer = $stripe->customers->retrieve($session->customer);
@@ -444,9 +444,9 @@ $card = $stripe->customers->all(['limit' => 3]);
 
 
                 // $customer = $stripe->customers->retrieve($session->customer);
-                print_r($stripe);die;
+                // print_r($stripe);die;
                 // echo "<h1>Thanks for your order, $customer->name!</h1>";
-                http_response_code(200);
+                // http_response_code(200);
 
                 // } catch (Error $e) {
                 // http_response_code(500);
@@ -454,7 +454,7 @@ $card = $stripe->customers->all(['limit' => 3]);
                 // }
 
             
-            return $this->sendResponse($stripe, 'Plan successfully activated.');
+            return $this->sendResponse($stripe, 'Thanks for your order.');
         }else{
             return response()->json(route('cancel'));
         }

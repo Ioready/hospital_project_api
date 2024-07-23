@@ -955,7 +955,21 @@ class SystemController extends BaseController
             );
 
         }
-        return $this->sendResponse($request->all(), 'Payment setting successfully updated.');
+        $settings = Utility::settings();
+
+        foreach ($post as $key => $data) {
+
+            $arr = [
+                $data,
+                $key,
+                \Auth::user()->id,
+            ];
+            \DB::insert(
+                'insert into settings (`value`, `name`,`created_by`) values (?, ?, ?) ON DUPLICATE KEY UPDATE `value` = VALUES(`value`) ', $arr
+            );
+
+        }
+        return $this->sendResponse($settings, 'Payment setting successfully updated.');
 
         // return redirect()->back()->with('success', __('Payment setting successfully updated.'));
     }
@@ -1452,7 +1466,7 @@ class SystemController extends BaseController
         } else {
             $post['is_nepalste_enabled'] = 'off';
         }
-
+        $settings = Utility::settings();
 
         foreach ($post as $key => $data) {
 
@@ -1466,7 +1480,8 @@ class SystemController extends BaseController
             );
 
         }
-        return $this->sendResponse($request->all(), 'Settings updated successfully.'); 
+        
+        return $this->sendResponse($settings, 'Settings updated successfully.'); 
     }
 
     public function savePusherSettings(Request $request)
@@ -1505,7 +1520,7 @@ class SystemController extends BaseController
                 );
             }
         }     
-            return $this->sendResponse($request->all(), 'Pusher Settings updated successfully.');     
+            return $this->sendResponse($settings, 'Pusher Settings updated successfully.');     
             // return redirect()->back()->with('success', __('Pusher Settings updated successfully'));
     }
 
