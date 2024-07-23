@@ -430,12 +430,12 @@ class HospitalController extends BaseController
                 $user['is_enable_login'] = $enableLogin;
 
                 
-                if ($user->images) {
-                    Storage::disk('public')->delete($user->images);
-                }
+                // if ($user->images) {
+                //     Storage::disk('public')->delete($user->images);
+                // }
         
-                $path = $request->file('logo')->store('images', 'public');
-                $user->images = $path;
+                // $path = $request->file('logo')->store('images', 'public');
+                // $user->images = $path;
 
                 $user->save();
             }else{
