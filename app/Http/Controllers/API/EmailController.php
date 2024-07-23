@@ -9,6 +9,11 @@ use Illuminate\Support\Facades\Auth;
 use Validator;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Email;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\SendMail;
 
 class EmailController extends BaseController
 {
@@ -77,6 +82,15 @@ class EmailController extends BaseController
             'subject' => $request->subject,
             'message' =>$request->message,
         ]);
+
+        // $otp = Str::random(6);
+        // $otp = rand(100000, 999999);
+        // $user->otp = $otp;
+        // $user->otp_expires_at = now()->addMinutes(10); // OTP valid for 10 minutes
+        // $user->save();
+
+        // Send OTP via email
+        $mail  =  Mail::to($request->to)->send(new SendMail($request->message));
 
         return $this->sendResponse($email, 'new email successfully.');
     } else { 

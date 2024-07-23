@@ -47,7 +47,7 @@ class SuperAdminController extends BaseController
 
         if(!empty($user)){
 
-            if($user->type == 'Super Admin'){
+            if($user->type == 'super admin'){
 
             $hospital = User::all()->where('type','hospital')->count();
             $active_hospital = User::all()->where('type','hospital')->where('is_active',0)->count();
@@ -76,6 +76,7 @@ class SuperAdminController extends BaseController
                 
             ];
 
+            
         }else if($user->type == 'hospital'){
 
             $hospital = User::all()->where('type','hospital')->count();
