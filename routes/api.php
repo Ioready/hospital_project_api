@@ -101,6 +101,7 @@ Route::middleware('auth:api')->group(function () {
 
             // Route::resource('systems', SystemController::class);
             Route::get('systems', [SystemController::class, 'index']);
+            Route::get('all-settings', [SystemController::class, 'index']);
             Route::post('add-brand-setting', [SystemController::class, 'store']);
 
             Route::post('email-settings', [SystemController::class, 'saveEmailSettings'])->name('email.settings');

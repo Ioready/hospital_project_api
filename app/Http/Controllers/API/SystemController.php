@@ -26,8 +26,9 @@ class SystemController extends BaseController
 {
     public function index()
     {
+        // $baseUrl =  url('/storage/');
         if (\Auth::user()) {
-            $settings = Utility::settings();
+            // $settings = Utility::settings();
             $admin_payment_setting = Utility::getAdminPaymentSetting();
             // $emailSetting = Utility::settingsById(\Auth::user()->id);
             $file_size = 0;
@@ -36,15 +37,49 @@ class SystemController extends BaseController
             }
             $file_size = number_format($file_size / 1000000, 4);
 
-        //     return view('settings.index', compact('settings', 'admin_payment_setting', 'file_size'));
-        // } else {
-        //     return redirect()->back()->with('error', 'Permission denied.');
-        // }
+        $settings = DB::table('settings')->select('settings.*')->where('created_by', '=', \Auth::user()->creatorId())->get();
+        $array = json_decode(json_encode($settings), true);
+        // print_r($settings);die;
+        // $objUser = \Auth::user()->id;
+        $urlapp = url('/'); 
+            $logoLight = '';
+            // foreach ($members as $x => $y) {
+            foreach ($array as $key=>$setting) {
+
+                if (!empty($setting['name'] ) =='logo_dark') {
+                    $logo_dark = url('/storage/' . $setting['value']);
+                }
+
+
+                if ($setting['name'] == 'logo_light') {
+                    $logoLight = url('/storage/' . $setting['value']);
+                //     break;
+                }
+
+                if (!empty($setting['name']) =='favicon') {
+                    $favicon = url('/storage/' . $setting['value']);
+                }
+                $data[$setting['name']] = $setting['value'];
+                // print_r($data[$setting['name']]);
+            }
+     
+
+
+            if (!empty($logoLight) =='logo_light') {
+                // Get the base URL of your Laravel application
+                $settings->value = $logoLight;
+            } else {
+                $settings->value = null; // Handle case where logo_light is not found
+            }
+
+    //    print_r($settings);die;
+
         $data[] = [
             'settings'=>$settings,
             'admin_payment_setting'=>$admin_payment_setting,
            
           ];
+          
         return $this->sendResponse($data, 'admin_payment_setting.');
         } else { 
             return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
@@ -77,10 +112,10 @@ class SystemController extends BaseController
                 $logoName = 'logo-light.png';
 
                 $dir = 'uploads/logo';
-                // $validation = [
-                //     'mimes:' . 'png',
-                //     'max:' . '20480',
-                // ];
+                $validation = [
+                    'mimes:' . 'jpg,jpeg,png,bmp,tiff',
+                    'max:' . '20480',
+                ];
                 $path = Utility::upload_file($request, 'logo_light', $logoName, $dir, $validation);
                 if ($path['flag'] == 1) {
                     $logo = $path['url'];

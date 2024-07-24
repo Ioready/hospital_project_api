@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
 use App\Models\Coupon;
 use App\Models\Invoice;
@@ -16,7 +16,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 
-class BankTransferPaymentController extends Controller
+use App\Http\Controllers\API\BaseController as BaseController;
+
+class BankTransferPaymentController extends BaseController
 {
     protected $invoiceData;
 
@@ -126,7 +128,8 @@ class BankTransferPaymentController extends Controller
     public function orderDestroy($id)
     {
         $order = Order::where('id', $id)->delete();
-        return redirect()->back()->with('success', 'Order successfully deleted.');
+        return $this->sendResponse($order, 'Order successfully deleted.');
+        
     }
     public function action($id)
     {
