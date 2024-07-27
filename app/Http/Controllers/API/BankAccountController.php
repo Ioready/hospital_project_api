@@ -14,8 +14,9 @@ use App\Models\Utility;
 use App\Models\Transaction;
 use App\Models\TransactionLines;
 use Illuminate\Http\Request;
-
-class BankAccountController extends Controller
+use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\API\BaseController as BaseController;
+class BankAccountController extends BaseController
 {
 
     public function index()
@@ -69,13 +70,13 @@ class BankAccountController extends Controller
                 'bank_name' => 'required',
                 'account_number' => 'required',
             ];
-            
+
             if ($request->contact_number != null) {
                 $rules['contact_number'] = ['regex:/^([0-9\s\-\+\(\)]*)$/'];
             }
-            
+
             $validator = \Validator::make($request->all(), $rules);
-            
+
             if ($validator->fails()) {
                 $messages = $validator->getMessageBag();
                 return redirect()->route('bank-account.index')->with('error', $messages->first());
@@ -129,7 +130,7 @@ class BankAccountController extends Controller
                     ->where('created_by', \Auth::user()->creatorId())->get()
                     ->pluck('code_name', 'id');
                 $chartAccounts->prepend('Select Account', 0);
-    
+
                 $subAccounts = ChartOfAccount::select(\DB::raw('CONCAT(chart_of_accounts.code, " - ", chart_of_accounts.name) AS code_name, chart_of_accounts.id, chart_of_accounts.code, chart_of_accounts.name , chart_of_account_parents.account'));
                 $subAccounts->leftjoin('chart_of_account_parents', 'chart_of_accounts.parent', 'chart_of_account_parents.id');
                 $subAccounts->where('chart_of_accounts.parent', '!=', 0);
@@ -163,13 +164,13 @@ class BankAccountController extends Controller
                 'bank_name' => 'required',
                 'account_number' => 'required',
             ];
-            
+
             if ($request->contact_number != null) {
                 $rules['contact_number'] = ['regex:/^([0-9\s\-\+\(\)]*)$/'];
             }
-            
+
             $validator = \Validator::make($request->all(), $rules);
-            
+
             if ($validator->fails()) {
                 $messages = $validator->getMessageBag();
                 return redirect()->route('bank-account.index')->with('error', $messages->first());

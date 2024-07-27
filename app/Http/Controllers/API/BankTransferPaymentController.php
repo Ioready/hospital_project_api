@@ -129,7 +129,7 @@ class BankTransferPaymentController extends BaseController
     {
         $order = Order::where('id', $id)->delete();
         return $this->sendResponse($order, 'Order successfully deleted.');
-        
+
     }
     public function action($id)
     {

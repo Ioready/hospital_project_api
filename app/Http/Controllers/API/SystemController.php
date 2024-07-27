@@ -41,55 +41,67 @@ class SystemController extends BaseController
         $array = json_decode(json_encode($settings), true);
         // print_r($settings);die;
         // $objUser = \Auth::user()->id;
-        $urlapp = url('/'); 
-            $logoLight = '';
+        $urlapp = url('/');
+            
             // foreach ($members as $x => $y) {
-            foreach ($array as $key=>$setting) {
+            foreach ($settings as $key=>$setting) {
 
-                if (!empty($setting['name'] ) =='logo_dark') {
-                    $logo_dark = url('/storage/' . $setting['value']);
+                // $data['name']= $setting->name;
+                // $data[$setting->id] = $setting->id;
+                $data[$setting->name] = $setting->value;
+                $data[$setting->name.'_id'] =$setting->id;
+               
+                if ($setting->name  =='logo_dark') {
+                    $data['logo_dark'] = url('/storage/' . $setting->value);
+                }
+    
+    
+                if ($setting->name == 'logo_light') {
+                    $data['logo_light'] = url('/storage/' . $setting->value);
+    
+                }
+    
+                if ($setting->name=='favicon') {
+                    $data['favicon'] = url('/storage/' . $setting->value);
                 }
 
-
-                if ($setting['name'] == 'logo_light') {
-                    $logoLight = url('/storage/' . $setting['value']);
-                //     break;
-                }
-
-                if (!empty($setting['name']) =='favicon') {
-                    $favicon = url('/storage/' . $setting['value']);
-                }
-                $data[$setting['name']] = $setting['value'];
-                // print_r($data[$setting['name']]);
             }
-     
+            
+
+            
+
+           
+                // $data[$setting['name']] = $setting['value'];
+
+//             print_r($data);
+// die;
 
 
-            if (!empty($logoLight) =='logo_light') {
-                // Get the base URL of your Laravel application
-                $settings->value = $logoLight;
-            } else {
-                $settings->value = null; // Handle case where logo_light is not found
-            }
+            // if (!empty($logoLight) =='logo_light') {
+
+            //     $settings->value = $logoLight;
+            // } else {
+            //     $settings->value = null;
+            // }
 
     //    print_r($settings);die;
 
-        $data[] = [
-            'settings'=>$settings,
+        $userdata[] = [
+            'settings'=>$data,
             'admin_payment_setting'=>$admin_payment_setting,
-           
+
           ];
-          
-        return $this->sendResponse($data, 'admin_payment_setting.');
-        } else { 
+
+        return $this->sendResponse($userdata, 'admin_payment_setting.');
+        } else {
             return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
-        } 
+        }
     }
 
     public function store(Request $request)
     {
 
-        
+
         if (\Auth::user()) {
             if ($request->logo_dark) {
                 $logoName = 'logo-dark.png';
@@ -103,7 +115,7 @@ class SystemController extends BaseController
                     $logo = $path['url'];
                 } else {
                     return $this->sendError('Unauthorised.', ['error'=>$path['msg']]);
-                   
+
                 }
             }
 
@@ -139,7 +151,7 @@ class SystemController extends BaseController
                     $favicon = $path['url'];
                 } else {
                     return $this->sendError('Unauthorised.', ['error'=>$path['msg']]);
-                   
+
                 }
             }
 
@@ -149,7 +161,7 @@ class SystemController extends BaseController
                 ) {
                 $post = $request->all();
 
-                
+
                 unset($post['_token'], $post['hospital_logo_dark'], $post['hospital_logo_light'], $post['hospital_favicon'] , $post['custom_color']);
 
                 // print_r($request->all());die;
@@ -176,9 +188,9 @@ class SystemController extends BaseController
 
 
         return $this->sendResponse($settings, 'Brand Setting successfully updated..');
-        } else { 
+        } else {
             return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
-        } 
+        }
     }
 
     public function saveEmailSettings(Request $request)
@@ -216,7 +228,7 @@ class SystemController extends BaseController
             }
 
             return $this->sendResponse($post, 'Setting successfully updated..');
-        } else { 
+        } else {
             return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
         }
 
@@ -256,7 +268,7 @@ class SystemController extends BaseController
             }
 
             return $this->sendResponse($post, 'Setting successfully updated..');
-        } else { 
+        } else {
             return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
         }
 
@@ -328,7 +340,7 @@ class SystemController extends BaseController
             }
 
             self::adminPaymentSettings($request);
-            return $this->sendResponse($request->all(), 'Payment setting successfully updated.'); 
+            return $this->sendResponse($request->all(), 'Payment setting successfully updated.');
             // return redirect()->back()->with('success', __('Payment setting successfully updated.'));
         } else {
             return redirect()->back()->with('error', 'Permission denied.');
@@ -951,7 +963,7 @@ class SystemController extends BaseController
         } else {
             $post['is_xendit_enabled'] = 'off';
         }
-        
+
         if (isset($request->is_nepalste_enabled) && $request->is_nepalste_enabled == 'on') {
             $request->validate(
                 [
@@ -1487,7 +1499,7 @@ class SystemController extends BaseController
         } else {
             $post['is_xendit_enabled'] = 'off';
         }
-        
+
         if (isset($request->is_nepalste_enabled) && $request->is_nepalste_enabled == 'on') {
             $request->validate(
                 [
@@ -1515,8 +1527,8 @@ class SystemController extends BaseController
             );
 
         }
-        
-        return $this->sendResponse($settings, 'Settings updated successfully.'); 
+
+        return $this->sendResponse($settings, 'Settings updated successfully.');
     }
 
     public function savePusherSettings(Request $request)
@@ -1554,8 +1566,8 @@ class SystemController extends BaseController
                     ]
                 );
             }
-        }     
-            return $this->sendResponse($settings, 'Pusher Settings updated successfully.');     
+        }
+            return $this->sendResponse($settings, 'Pusher Settings updated successfully.');
             // return redirect()->back()->with('success', __('Pusher Settings updated successfully'));
     }
 
@@ -1690,7 +1702,7 @@ class SystemController extends BaseController
     {
 
         $user = \Auth::user();
-      
+
         if(!empty($user)){
         $rules = [];
 
@@ -1723,13 +1735,13 @@ class SystemController extends BaseController
                     ]
                 );
             }
-        }        
+        }
         return $this->sendResponse($request->all(), 'Recaptcha Settings updated successfully.');
-        } else { 
+        } else {
             return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
-        } 
+        }
 
-            
+
     }
 
     public function storageSettingStore(Request $request)
@@ -2126,7 +2138,7 @@ class SystemController extends BaseController
             }
         }
         return $this->sendResponse($data, 'Cookie setting successfully saved.');
-        } else { 
+        } else {
             return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
         }
         // return redirect()->back()->with('success', 'Cookie setting successfully saved.');
@@ -2180,7 +2192,7 @@ class SystemController extends BaseController
         Artisan::call('optimize:clear');
         $data = '';
         return $this->sendResponse($data, 'Cache clear Successfully.');
-        } else { 
+        } else {
             return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
         }
 
@@ -2273,10 +2285,10 @@ class SystemController extends BaseController
             );
         }
         return $this->sendResponse($post, 'ChatGPT Setting successfully saved.');
-    } else { 
+    } else {
         return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
     }
-   
+
     }
 
     //ip settings
@@ -2381,11 +2393,11 @@ class SystemController extends BaseController
         }
 
         return $this->sendResponse($post, 'Setting successfully updated.');
-    } else { 
+    } else {
         return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
     }
 
-        
+
     }
 
 

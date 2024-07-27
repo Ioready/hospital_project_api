@@ -35,18 +35,18 @@ class HospitalController extends BaseController
         ->where('users.type', 'hospital')
         ->leftJoin('plans', 'users.plan', '=', 'plans.id')
         ->get();
-        
+
         foreach ($hospitals as $hospital) {
             if (!empty($hospital->images)) {
                 $hospital->hospital_images = url('/storage/' . $hospital->images);
             } else {
                 $hospital->hospital_images = url('/default_image/images.png'); // Or provide a default image path
             }
-        }   
+        }
         return $this->sendResponse($hospitals, 'All hospital successfully.');
-        } else { 
+        } else {
             return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
-        } 
+        }
     }
 
 
@@ -67,7 +67,7 @@ class HospitalController extends BaseController
                     $messages = $validator->getMessageBag();
 
                     return response()->json($messages->first(), 422);
-                    
+
                 }
 
 
@@ -81,7 +81,7 @@ class HospitalController extends BaseController
                     if ($validator->fails()) {
 
                         return response()->json($validator->errors(), 422);
-                        
+
                     }
                 }
                 $userpassword = $request->password;
@@ -104,7 +104,7 @@ class HospitalController extends BaseController
                 $user['created_by'] = \Auth::user()->id;
                 $user['plan'] = Plan::first()->id;
                 $user['role_id'] = 2;
-                
+
                 if ($settings['email_verification'] == 'on') {
 
                     $user['email_verified_at'] = null;
@@ -114,7 +114,7 @@ class HospitalController extends BaseController
                 $user['is_enable_login'] = $enableLogin;
 
                 // $users = user::find($id);
-    
+
         // $user = Auth::user();
 
         // Delete the old profile image if it exists
@@ -145,11 +145,11 @@ class HospitalController extends BaseController
                 $user = User::find(\Auth::user()->created_by);
                 $total_user = $objUser->countUsers();
                 $plan = Plan::find($objUser->plan);
-                
+
                 $userpassword = $request->password;
 
-                $date = now()->subDays($objUser['package_duration'])->toDateString(); 
-               
+                $date = now()->subDays($objUser['package_duration'])->toDateString();
+
 
                 $objHospital['id']= $objUser->id;
                 $objHospital['name']= $objUser->name;
@@ -161,7 +161,7 @@ class HospitalController extends BaseController
                 $objHospital['type']= $objUser->type;
                 $objHospital['is_enable_login']= $objUser->is_enable_login;
                 $objHospital['plan']= $plan->card_title;
-                $objHospital['plan_expire']= $plan->created_at;   
+                $objHospital['plan_expire']= $plan->created_at;
             }
             // Send Email
             // $setings = Utility::settings();
@@ -192,7 +192,7 @@ class HospitalController extends BaseController
                 // return redirect()->route('users.index')->with('success', __('Company successfully created.'));s
             } else {
                 return $this->sendResponse($objHospital, 'success', __('User successfully created.'));
-                
+
 
             }
 
@@ -228,7 +228,7 @@ class HospitalController extends BaseController
     //         // 'do_you_want_trial_version'=> 'required|string|max:255',
     //         'logo'=> 'required|max:255',
     //         'status' => 'required|string|max:255',
-        
+
     //         // Add other fields as necessary
     //     ]);
 
@@ -263,7 +263,7 @@ class HospitalController extends BaseController
     //         'do_you_want_trial_version'=> $request->input('do_you_want_trial_version'),
     //         'logo'=> $request->logo,
     //         'status' => $request->input('status'),
-           
+
     //     ]);
 
     //     $data[] = [
@@ -271,33 +271,33 @@ class HospitalController extends BaseController
     //         'avatar'=>Storage::url($hospital->avatar),
     //         'status'=>200,
     //       ];
-      
-          
+
+
     //       return $this->sendResponse($hospital, 'Add hospital successfully.');
-    //     } else { 
+    //     } else {
     //         return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
     //     }
     // }
 
     public function editHospitals($id){
         if(!empty($id)){
-           
+
             $hospital = DB::table('users')
         ->select('users.id', 'users.name', 'users.email', 'users.role_id', 'users.address', 'users.phone_number', 'users.images', 'users.is_active', 'users.type', 'users.is_enable_login', 'plans.card_title')
         ->where('users.type', 'hospital')->where('users.id',$id)
         ->leftJoin('plans', 'users.plan', '=', 'plans.id')
         ->first();
 
-       
+
         if ($hospital) {
             $hospital->hospital_images =  url('/storage/' . $hospital->images);
             return $this->sendResponse($hospital, 'User Edit hospital successfully.');
         } else {
             return $this->sendError('Hospital not found.', ['error' => 'Hospital not found']);
         }
-           
+
         // return $this->sendResponse($hospitals, 'User Edit hospital successfully.');
-        } else { 
+        } else {
             return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
         }
 
@@ -308,7 +308,7 @@ class HospitalController extends BaseController
         // $user = Auth::user();
         // if(!empty($user)){
 
-       
+
         //     $validator = Validator::make($request->all(), [
         //         'title' => 'required|string|max:255',
         //         'email' => 'required',
@@ -328,7 +328,7 @@ class HospitalController extends BaseController
         //         'do_you_want_trial_version'=> 'required|string|max:255',
         //         'logo'=> 'required|max:255',
         //         'status' => 'required|string|max:255',
-            
+
         //         // Add other fields as necessary
         //     ]);
 
@@ -336,9 +336,9 @@ class HospitalController extends BaseController
         //     return response()->json($validator->errors(), 422);
         // }
 
-        
 
-        
+
+
         // $hospital = Hospital::find($id);
 
         // if ($request->logo) {
@@ -357,10 +357,10 @@ class HospitalController extends BaseController
         //     'avatar'=>Storage::url($hospital->avatar),
         //     'status'=>200,
         //   ];
-      
-          
+
+
         //   return $this->sendResponse($hospital, 'update hospital successfully.');
-        // } else { 
+        // } else {
         //     return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
         // }
 
@@ -380,7 +380,7 @@ class HospitalController extends BaseController
                     $messages = $validator->getMessageBag();
 
                     return response()->json($messages->first(), 422);
-                    
+
                 }
 
 
@@ -394,7 +394,7 @@ class HospitalController extends BaseController
                     if ($validator->fails()) {
 
                         return response()->json($validator->errors(), 422);
-                        
+
                     }
                 }
                 $userpassword = $request->password;
@@ -407,7 +407,7 @@ class HospitalController extends BaseController
                 $user = User::where('type','hospital')->where('id',$id)->first();
                 if(!empty($user)){
 
-                
+
                 $user['name'] = $request->name;
                 $user['email'] = $request->email;
                 $psw = $request->password;
@@ -420,7 +420,7 @@ class HospitalController extends BaseController
                 $user['created_by'] = \Auth::user()->id;
                 $user['plan'] = Plan::first()->id;
                 $user['role_id'] = 2;
-                
+
                 if ($settings['email_verification'] == 'on') {
 
                     $user['email_verified_at'] = null;
@@ -429,13 +429,13 @@ class HospitalController extends BaseController
                 }
                 $user['is_enable_login'] = $enableLogin;
 
-                
-                // if ($user->images) {
-                //     Storage::disk('public')->delete($user->images);
-                // }
-        
-                // $path = $request->file('logo')->store('images', 'public');
-                // $user->images = $path;
+
+                if ($user->images) {
+                    Storage::disk('public')->delete($user->images);
+                }
+
+                $path = $request->file('logo')->store('images', 'public');
+                $user->images = $path;
 
                 $user->save();
             }else{
@@ -450,7 +450,7 @@ class HospitalController extends BaseController
             // 'password' =>Hash::make($request->password),
             // 'plan'=>Plan::first()->id,
             // 'address'=>$request->address,
-            
+
             // 'created_by' => \Auth::user()->creatorId();
 
 
@@ -458,11 +458,11 @@ class HospitalController extends BaseController
                 $user = User::find(\Auth::user()->created_by);
                 $total_user = $objUser->countUsers();
                 $plan = Plan::find($objUser->plan);
-                
+
                 $userpassword = $request->password;
 
-                $date = now()->subDays($objUser['package_duration'])->toDateString(); 
-               
+                $date = now()->subDays($objUser['package_duration'])->toDateString();
+
 
                 $objHospital['id']= $objUser->id;
                 $objHospital['name']= $objUser->name;
@@ -474,7 +474,7 @@ class HospitalController extends BaseController
                 $objHospital['type']= $objUser->type;
                 $objHospital['is_enable_login']= $objUser->is_enable_login;
                 $objHospital['plan']= $plan->card_title;
-                $objHospital['plan_expire']= $plan->created_at;   
+                $objHospital['plan_expire']= $plan->created_at;
             }
             // Send Email
             // $setings = Utility::settings();
@@ -505,7 +505,7 @@ class HospitalController extends BaseController
                 // return redirect()->route('users.index')->with('success', __('Company successfully created.'));s
             } else {
                 return $this->sendResponse($objHospital, 'success', __('User successfully created.'));
-                
+
 
             }
 
@@ -522,9 +522,9 @@ class HospitalController extends BaseController
     //     $user = Auth::user();
     //     if(!empty($user)){
 
-       
+
     //         $validator = Validator::make($request->all(), [
-                
+
     //             'status' => 'required|max:255',
     //         ]);
 
@@ -532,23 +532,23 @@ class HospitalController extends BaseController
     //         return response()->json($validator->errors(), 422);
     //     }
 
-        
+
     //     $hospital = Hospital::find($id);
     //     $hospital->update(['status' => $request->status]);
     //     $data[] = [
     //         'hospital'=>$hospital,
     //         'status'=>200,
     //       ];
-      
-          
+
+
     //       return $this->sendResponse($hospital, 'update status hospital successfully.');
-    //     } else { 
+    //     } else {
     //         return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
     //     }
     // }
     public function statusUpdateHospitals(Request $request, $id)
     {
-    
+
     $user = Auth::user();
     if ($user) {
 
@@ -577,7 +577,7 @@ class HospitalController extends BaseController
 
             return $this->sendResponse($data, 'Hospital status updated successfully.');
         } catch (\Exception $e) {
-            
+
             return response()->json(['error' => 'Something went wrong', 'details' => $e->getMessage()], 500);
         }
 
@@ -594,7 +594,7 @@ class HospitalController extends BaseController
 
             if ($hospital) {
                 $hospital->delete();
-                
+
                 return $this->sendResponse($hospital, 'Hospital deleted successfully.');
             } else {
                 return $this->sendError('Hospital not found.', ['error' => 'Hospital not found']);
@@ -604,25 +604,25 @@ class HospitalController extends BaseController
         }
     }
 
-    
+
     public function activeHospital(){
         $user = Auth::user();
         if(!empty($user)){
 
-            
+
             $active_hospitalCount = User::all()->where('type','hospital')->where('is_active','0')->count();
             $active_hospital = User::all()->where('type','hospital')->where('is_active','0');
-           
+
             $response = [
                 'active_hospital_count' => $active_hospitalCount,
                 'active_hospital' => $active_hospital,
-                
+
                 // 'status'=>200,
             ];
 
 
         return $this->sendResponse($response, 'User active  hospital successfully.');
-        } else { 
+        } else {
             return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
         }
     }
@@ -631,22 +631,22 @@ class HospitalController extends BaseController
         $user = Auth::user();
         if(!empty($user)){
 
-            
-            
+
+
             $inactive_hospitalCount = User::all()->where('type','hospital')->where('is_active',1)->count();
             $inactive_hospital = User::all()->where('type','hospital')->where('is_active',1);
-            
+
             $response = [
-                
+
                 'count_inactive_hospital' => $inactive_hospitalCount,
                 'inactive_hospital' => $inactive_hospital,
-               
+
                 // 'status'=>200,
             ];
 
 
         return $this->sendResponse($response, 'User inactive hospital successfully.');
-        } else { 
+        } else {
             return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
         }
     }
@@ -661,12 +661,12 @@ class HospitalController extends BaseController
 
             foreach($all_hospital as $duration){
 
-              
+
             // $plans = Plan::find($duration->plan);
             // $plans->
             // Calculate the date 90 days ago
             $date = now()->subDays($duration['package_duration'])->toDateString();  // use toDateString() to get the date in 'Y-m-d' format
-    
+
             // Query hospitals with the created_at or updated_at date equal to 90 days ago
             $currentDate = date('Y-m-d');
 
@@ -678,9 +678,9 @@ class HospitalController extends BaseController
                 'license_expired_hospitals' => $license_expired_hospitals,
                 'date' => $date,
             ];
-    
+
             return $this->sendResponse($response, 'Hospitals with license expired 90 days ago retrieved successfully.');
-        } else { 
+        } else {
             return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
         }
     }
@@ -702,7 +702,7 @@ class HospitalController extends BaseController
         );
 
         return $this->sendResponse($data, 'admin_payment_setting.');
-    } else { 
+    } else {
         return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
     }
     }
@@ -744,10 +744,10 @@ class HospitalController extends BaseController
         //     return redirect()->back()->with('error', 'Plan fail to upgrade.');
         // }
         return $this->sendResponse($user, 'Plan successfully upgraded.');
-    } else { 
+    } else {
         return $this->sendError('error','Plan fail to upgrade.');
     }
 
     }
-    
+
 }
